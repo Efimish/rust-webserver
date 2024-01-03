@@ -1,0 +1,39 @@
+[package]
+name = "webserver"
+version = "0.0.1"
+edition = "2021"
+authors = [
+    "Efima"
+]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# Core dependencies: runtime, HTTP framework and database client.
+tokio = { version = "1.34.0", features = ["full"] }
+axum = "0.7.1"
+sqlx = { version = "0.7.3", features = ["runtime-tokio", "postgres", "time", "uuid"] }
+
+
+serde = { version = "1.0.193", features = ["derive"] }
+reqwest = { version = "0.11.22", features = ["json"] }
+argon2 = "0.5.2"
+
+# Time, Crypto keys, JWTs, UUIDs
+time = { version = "0.3.30", features = ["serde"] }
+rsa = { version = "0.9.4", features = ["std", "pem"] }
+jsonwebtoken = "9.1.0"
+uuid = { version = "1.6.1", features = ["v4", "serde"] }
+
+# Parsers
+woothee = "0.13.0"
+
+# Utility Crates
+dotenv = "0.15.0"
+rand = "0.8.5"
+tower = "0.4.13"
+tower-http = { version = "0.5.0", features = ["cors"] }
+thiserror = "1.0.50"
+anyhow = "1.0.75"
+async-trait = "0.1.74"
+regex = "1.10.2"
