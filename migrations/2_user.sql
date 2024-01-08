@@ -5,7 +5,7 @@ create table "user"
     email text not null,
     password_hash text not null,
     created_at timestamptz not null default now(),
-    updated_at timestamptz,
+    updated_at timestamptz not null default now(),
     unique(username, email),
     check(username = lower(username) and email = lower(email))
 );
