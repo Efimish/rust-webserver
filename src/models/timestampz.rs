@@ -6,6 +6,12 @@ use std::fmt::Formatter;
 #[derive(sqlx::Type)]
 pub struct Timestampz(pub OffsetDateTime);
 
+impl From<OffsetDateTime> for Timestampz {
+    fn from(value: OffsetDateTime) -> Self {
+        Self(value)
+    }
+}
+
 impl Serialize for Timestampz {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where

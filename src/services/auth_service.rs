@@ -50,8 +50,7 @@ pub async fn remove_user_session(
         .await
         .map_err(|e| {
             Error::Sqlx(e)
-        })
-        .map(|_| {
-            ()
-        })
+        })?;
+    
+    Ok(())
 }

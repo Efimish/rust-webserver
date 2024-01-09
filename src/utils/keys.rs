@@ -14,8 +14,8 @@ impl RsaKeyPair {
             .map_err(|_| {"Error checking if keys directory exists"})? {
             return Err("keys directory does not exist");
         };
-        let private_key_file: PathBuf = Path::new(&dir_path).join("private.key");
-        let public_key_file: PathBuf = Path::new(&dir_path).join("public.key");
+        let private_key_file: PathBuf = dir_path.join("private.key");
+        let public_key_file: PathBuf = dir_path.join("public.key");
 
         if !private_key_file
             .try_exists()

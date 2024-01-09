@@ -1,22 +1,32 @@
 use sqlx::postgres::PgPool;
 use uuid::Uuid;
 use regex::Regex;
+use anyhow::anyhow;
 use crate::utils::Error;
 use crate::models::user_model::BaseUser;
 
-async fn verify_username(
-    pool: &PgPool,
+fn verify_spelling(
     username: &str
 ) -> Result<(), Error> {
-    let username_regex = Regex::new(r"^\w+$").unwrap();
+    let username_regex = Regex::new(r"^\w+$")
+        .map_err(|_| {
+            Error::Anyhow(anyhow!("Can not parse regex"))
+        })?;
 
     if username.len() < 3
     || username.len() > 24
     || username != username.to_lowercase()
-    || username_regex.is_match(username) {
+    || !username_regex.is_match(username) {
         return Err(Error::BadRequest);
     }
-    if sqlx::query!(
+    Ok(())
+}
+
+async fn verify_available(
+    pool: &PgPool,
+    username: &str
+) -> Result<bool, Error> {
+    Ok(sqlx::query!(
         r#"
         SELECT COUNT(1) FROM "user"
         WHERE username = $1
@@ -27,20 +37,40 @@ async fn verify_username(
         .await
         .map_err(|e| {
             Error::Sqlx(e)
-        })?
-        .count == Some(1) {
-            return Err(Error::BadRequest);
-        };
-    Ok(())
+        })?.count == Some(0)
+    )
+}
+
+pub async fn get_user(
+    pool: &PgPool,
+    username: &str
+) -> Result<BaseUser, Error> {
+    verify_spelling(username)?;
+    sqlx::query_as!(
+        BaseUser,
+        r#"
+        SELECT user_id, username FROM "user"
+        WHERE username = $1
+        "#,
+        username
+    )
+        .fetch_one(pool)
+        .await
+        .map_err(|e| {
+            Error::Sqlx(e)
+        })
 }
 
 pub async fn add_user(
     pool: &PgPool,
     username: &str,
     email: &str,
-    password: &str,
+    password_hash: &str,
 ) -> Result<Uuid, Error> {
-    verify_username(pool, username).await?;
+    verify_spelling(username)?;
+    if !verify_available(pool, username).await? {
+        return Err(Error::BadRequest);
+    };
 
     sqlx::query!(
         r#"
@@ -54,7 +84,7 @@ pub async fn add_user(
         "#,
         username,
         email,
-        password
+        password_hash
     )
         .fetch_one(pool)
         .await
@@ -64,6 +94,31 @@ pub async fn add_user(
         .map(|v| {
             v.user_id
         })
+}
+
+pub async fn delete_user(
+    pool: &PgPool,
+    username: &str
+) -> Result<(), Error> {
+    verify_spelling(username)?;
+    if verify_available(pool, username).await? {
+        return Err(Error::BadRequest);
+    }
+    
+    sqlx::query!(
+        r#"
+        DELETE FROM "user"
+        WHERE username = $1
+        "#,
+        username
+    )
+        .execute(pool)
+        .await
+        .map_err(|e| {
+            Error::Sqlx(e)
+        })?;
+    
+    Ok(())
 }
 
 pub async fn get_users(
@@ -80,47 +135,4 @@ pub async fn get_users(
         .map_err(|e| {
             Error::Sqlx(e)
         })
-}
-
-pub async fn get_user_by_username(
-    pool: &PgPool,
-    username: &str
-) -> Result<BaseUser, Error> {
-    verify_username(pool, username).await?;
-
-    sqlx::query_as!(
-        BaseUser,
-        r#"
-        SELECT user_id, username FROM "user"
-        WHERE username = $1
-        "#,
-        username
-    )
-        .fetch_one(pool)
-        .await
-        .map_err(|e| {
-            Error::Sqlx(e)
-        })
-}
-
-pub async fn delete_user(
-    pool: &PgPool,
-    username: &str
-) -> Result<(), Error> {
-    verify_username(pool, username).await?;
-
-    sqlx::query!(
-        r#"
-        DELETE FROM "user"
-        WHERE username = $1
-        "#,
-        username
-    )
-        .execute(pool)
-        .await
-        .map_err(|e| {
-            Error::Sqlx(e)
-        })?;
-    
-    Ok(())
 }

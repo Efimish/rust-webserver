@@ -20,5 +20,5 @@ pub struct FullUser {
     #[serde(rename = "createdAt")]
     pub created_at: Timestampz,
     #[serde(rename = "updatedAt")]
-    pub updated_at: Option<Timestampz>
+    pub updated_at: Timestampz
 }

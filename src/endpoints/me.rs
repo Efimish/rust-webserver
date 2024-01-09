@@ -3,7 +3,7 @@ use serde::{Serialize, Deserialize};
 use axum::{Router, Extension, Json, http::StatusCode, routing::{get, post}};
 use uuid::Uuid;
 use time::OffsetDateTime;
-use crate::{AppState, utils::AuthUser};
+use crate::{AppState, utils::AuthUser, models::user_model::FullUser};
 
 pub fn router() -> Router {
     Router::new()
@@ -12,25 +12,11 @@ pub fn router() -> Router {
         .route("/sessions/end", post(end_session))
 }
 
-#[derive(Serialize)]
-struct User {
-    #[serde(rename = "userId")]
-    user_id: Uuid,
-    username: String,
-    email: String,
-    #[serde(rename = "passwordHash")]
-    password_hash: String,
-    #[serde(rename = "createdAt")]
-    created_at: time::OffsetDateTime,
-    #[serde(rename = "updatedAt")]
-    updated_at: Option<time::OffsetDateTime>
-}
-
 async fn get_my_user(
     Extension(state): Extension<Arc<AppState>>,
     user: AuthUser
-) -> Json<User> {
-    let user = sqlx::query_as!(User,
+) -> Json<FullUser> {
+    let user = sqlx::query_as!(FullUser,
         r#"SELECT * FROM "user" WHERE user_id = $1"#,
         user.user_id
     )

@@ -2,7 +2,7 @@ mod utils;
 mod endpoints;
 mod services;
 mod models;
-use std::{path::{Path, PathBuf}, net::SocketAddr, sync::Arc};
+use std::{path::PathBuf, net::SocketAddr, sync::Arc};
 use utils::RsaKeyPair;
 use dotenv::dotenv;
 use axum::{Router, Extension};
@@ -16,18 +16,17 @@ pub struct AppState {
     keys: RsaKeyPair
 }
 
-#[tokio::main]
-async fn main() {
+async fn run() {
     dotenv().ok();
     let current_dir: PathBuf = std::env::current_dir()
-        .expect("Can not get current directory");
-    let data_dir: PathBuf = Path::new(&current_dir).join("data");
+        .expect("Can not access current directory");
+    let data_dir: PathBuf = current_dir.join("data");
     match data_dir.try_exists() {
         Err(_) => panic!("error checking if data directory exists"),
         Ok(v) if !v => panic!("data directory does not exist"),
         Ok(_) => ()
     };
-    let keys_dir: PathBuf = Path::new(&data_dir).join("keys");
+    let keys_dir: PathBuf = data_dir.join("keys");
     let keys = RsaKeyPair::read_or_generate(&keys_dir).unwrap();
     
     let db_url: String = std::env::var("DATABASE_URL")
@@ -65,37 +64,3 @@ async fn start(app: Router) {
         app.into_make_service_with_connect_info::<SocketAddr>()
     ).await.unwrap();
 }
-
-// use crate::utils::Error;
-// trait Model {
-//     type Add;
-//     type Search;
-//     type Get;
-//     fn add(pool: &PgPool, value: Self::Add) -> Result<(), Error>;
-//     fn get(pool: &PgPool, query: Self::Search) -> Result<Self::Get, Error>;
-//     fn update(pool: &PgPool, query: Self::Search, value: Self::Add) -> Result<(), Error>;
-//     fn delete(pool: &PgPool, query: Self::Search) -> Result<(), Error>;
-// }
-
-// struct User;
-// impl Model for User {
-//     type Add;
-//     type Search = String;
-//     type Get;
-
-//     fn add(pool: &PgPool, value: Self::Add) -> Result<(), Error> {
-//         todo!()
-//     }
-
-//     fn get(pool: &PgPool, query: Self::Search) -> Result<Self::Get, Error> {
-//         todo!()
-//     }
-
-//     fn update(pool: &PgPool, query: Self::Search, value: Self::Add) -> Result<(), Error> {
-//         todo!()
-//     }
-
-//     fn delete(pool: &PgPool, query: Self::Search) -> Result<(), Error> {
-//         todo!()
-//     }
-// }

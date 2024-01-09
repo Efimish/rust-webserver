@@ -6,13 +6,19 @@ use crate::models::user_model::BaseUser;
 use crate::utils::Error;
 use crate::services::user_service::{
     get_users as service_get_users,
-    get_user_by_username as service_get_user_by_username
+    get_user as service_get_user
 };
 
 pub fn router() -> Router {
     Router::new()
-        .route("/", get(get_users))
-        .route("/:username", get(get_user_by_username))
+        .route(
+            "/",
+            get(get_users)
+        )
+        .route(
+            "/:username",
+            get(get_user)
+        )
 }
 
 async fn get_users(
@@ -22,10 +28,10 @@ async fn get_users(
     Ok(Json(service_get_users(&state.pool).await?))
 }
 
-async fn get_user_by_username(
+async fn get_user(
     Extension(state): Extension<Arc<AppState>>,
     Path(username): Path<String>,
     _: AuthUser
 ) -> Result<Json<BaseUser>, Error> {
-    Ok(Json(service_get_user_by_username(&state.pool, &username).await?))
+    Ok(Json(service_get_user(&state.pool, &username).await?))
 }

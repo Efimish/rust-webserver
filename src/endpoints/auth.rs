@@ -5,10 +5,22 @@ use crate::{AppState, utils::{AuthUser, MaybeAuthUser, TokenPair, RequestInfo, h
 
 pub fn router() -> Router {
     Router::new()
-        .route("/login", post(login))
-        .route("/register", post(register))
-        .route("/refresh", post(refresh))
-        .route("/logout", post(logout))
+        .route(
+            "/login",
+            post(login)
+        )
+        .route(
+            "/register",
+            post(register)
+        )
+        .route(
+            "/refresh",
+            post(refresh)
+        )
+        .route(
+            "/logout",
+            post(logout)
+        )
 }
 
 #[derive(Deserialize)]
