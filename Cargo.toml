@@ -37,3 +37,7 @@ thiserror = "1.0.50"
 anyhow = "1.0.75"
 async-trait = "0.1.74"
 regex = "1.10.2"
+log = "0.4.20"
+env_logger = "0.10.1"
+lazy_static = "1.4.0"
+validator = { version = "0.16.1", features = ["derive"] }
