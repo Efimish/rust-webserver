@@ -1,6 +1,6 @@
 use sqlx::postgres::PgPool;
 use uuid::Uuid;
-use crate::utils::Error;
+use crate::utils::ReqResult;
 
 pub async fn add_user_session(
     pool: &PgPool,
@@ -9,7 +9,7 @@ pub async fn add_user_session(
     user_ip: &str,
     user_agent: &str,
     user_location: &str
-) -> Result<(), Error> {
+) -> ReqResult<()> {
     sqlx::query!(
         r#"
         INSERT INTO user_session (
@@ -29,28 +29,19 @@ pub async fn add_user_session(
         user_location
     )
         .execute(pool)
-        .await
-        .map_err(|e| {
-            Error::Sqlx(e)
-        })
-        .map(|_| {
-            ()
-        })
+        .await?;
+    Ok(())
 }
 
 pub async fn remove_user_session(
     pool: &PgPool,
     session_id: Uuid
-) -> Result<(), Error> {
+) -> ReqResult<()> {
     sqlx::query!(
         r#"DELETE FROM user_session WHERE session_id = $1"#,
         session_id
     )
         .execute(pool)
-        .await
-        .map_err(|e| {
-            Error::Sqlx(e)
-        })?;
-    
+        .await?;
     Ok(())
 }

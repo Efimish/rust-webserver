@@ -1,7 +1,7 @@
 use serde::{Serialize, Deserialize};
 use woothee::parser::Parser;
-use crate::utils::Error;
-use anyhow::anyhow;
+use crate::utils::ReqResult;
+use anyhow::Context;
 
 #[derive(Debug, Serialize)]
 pub struct RequestInfo {
@@ -12,7 +12,7 @@ pub struct RequestInfo {
 }
 
 impl RequestInfo {
-    pub async fn get(ip: &str, agent: &str) -> Result<RequestInfo, Error> {
+    pub async fn get(ip: &str, agent: &str) -> ReqResult<RequestInfo> {
         #[derive(Deserialize)]
         struct Location {
             country: String,
@@ -21,23 +21,13 @@ impl RequestInfo {
         let url = format!("http://ip-api.com/json/{}", ip);
         let req = reqwest::get(url)
             .await
-            .map_err(|_| {
-                Error::Anyhow(
-                    anyhow!("Can not request user location")
-                )
-            })?;
+            .context("Error requesting user location")?;
         let location = req.json::<Location>()
             .await
-            .map_err(|_| {
-                Error::Anyhow(
-                    anyhow!("Can not parse user location")
-                )
-            })?;
+            .context("Error requesting user location")?;
         let parser = Parser::new();
         let agent = parser.parse(agent)
-            .ok_or(Error::Anyhow(
-                anyhow!("Can not parse user agent")
-            ))?;
+            .context("Error parsing user agent")?;
         Ok(RequestInfo {
             ip: ip.to_string(),
             os: agent.os.to_string(),

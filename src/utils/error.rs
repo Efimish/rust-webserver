@@ -8,11 +8,17 @@ use sqlx::error::DatabaseError;
 use std::borrow::Cow;
 use std::collections::HashMap;
 
+pub type ReqResult<T, E = Error> = Result<T, E>;
+
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Return `400 Bad Request`
     #[error("bad request")]
     BadRequest,
+
+    /// Return `400 Bad Request`
+    #[error("bad request")]
+    Validator(#[from] validator::ValidationErrors),
 
     /// Return `401 Unauthorized`
     #[error("authentication required")]
@@ -61,7 +67,7 @@ impl Error {
 
     fn status_code(&self) -> StatusCode {
         match self {
-            Self::BadRequest => StatusCode::BAD_REQUEST,
+            Self::BadRequest | Self::Validator(_) => StatusCode::BAD_REQUEST,
             Self::Unauthorized => StatusCode::UNAUTHORIZED,
             Self::Forbidden => StatusCode::FORBIDDEN,
             Self::NotFound => StatusCode::NOT_FOUND,
@@ -76,11 +82,11 @@ impl IntoResponse for Error {
         match self {
             Error::UnprocessableEntity { errors } => {
                 #[derive(Serialize)]
-                struct Errors {
+                struct Error {
                     errors: HashMap<Cow<'static, str>, Vec<Cow<'static, str>>>
                 }
 
-                return (StatusCode::UNPROCESSABLE_ENTITY, Json(Errors { errors })).into_response();
+                return (StatusCode::UNPROCESSABLE_ENTITY, Json(Error { errors })).into_response();
             }
             Error::Unauthorized => {
                 return (
@@ -92,11 +98,28 @@ impl IntoResponse for Error {
                 ).into_response();
             },
             Error::Sqlx(ref e) => {
-                println!("SQLx error: {:?}", e);
+                log::error!("SQLx error: {:?}", e);
             },
             Error::Anyhow(ref e) => {
-                println!("Generic error: {:?}", e);
+                log::error!("Generic error: {:?}", e);
             },
+            Error::Validator(ref errors) => {
+                log::error!("Validation error: {:?}", errors);
+                #[derive(Serialize)]
+                struct Error<'a> {
+                    message: &'a str,
+                    errors: HashMap<&'a str, Vec<Option<Cow<'a, str>>>>
+                }
+                let message = "Validation error";
+                let errors: HashMap<&str, Vec<Option<Cow<str>>>> = errors.clone()
+                    .field_errors()
+                    .iter()
+                    .map(|(&code, &e)| {
+                        (code, e.iter().map(|er| er.message.clone()).collect())
+                    })
+                    .collect();
+                return (self.status_code(), Json(Error { message, errors })).into_response();
+            }
             _ => ()
         }
         (self.status_code(), self.to_string()).into_response()

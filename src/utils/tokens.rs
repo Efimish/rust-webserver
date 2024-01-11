@@ -1,12 +1,18 @@
 use std::sync::Arc;
+use anyhow::Context;
 use serde::{Serialize, Deserialize};
 use rsa::{RsaPrivateKey, RsaPublicKey, pkcs8::{EncodePrivateKey, EncodePublicKey, LineEnding}};
 use jsonwebtoken::{encode, decode, Header, Algorithm, EncodingKey, DecodingKey, Validation};
 use sqlx::postgres::PgPool;
 use uuid::Uuid;
 use time::{Duration, OffsetDateTime};
-use super::Error;
-use crate::AppState;
+use crate::{
+    AppState,
+    utils::{
+        Error,
+        ReqResult
+    }
+};
 
 use async_trait::async_trait;
 use axum::{
@@ -20,8 +26,8 @@ use axum::{
 };
 
 const PREFIX: &str = "Bearer ";
-// const ACCESS_LIFE_TIME: Duration = Duration::minutes(10);
-const ACCESS_LIFE_TIME: Duration = Duration::seconds(20);
+const ACCESS_LIFE_TIME: Duration = Duration::minutes(10);
+// const ACCESS_LIFE_TIME: Duration = Duration::seconds(20);
 const REFRESH_LIFE_TIME: Duration = Duration::days(30);
 
 
@@ -52,9 +58,11 @@ impl TokenPair {
         pool: &PgPool, key: &RsaPrivateKey,
         user_id: Uuid, user_ip: String,
         user_agent: String, user_location: String
-    ) -> TokenPair {
-        let key = key.to_pkcs8_pem(LineEnding::default()).unwrap();
-        let key = EncodingKey::from_rsa_pem(key.as_bytes()).unwrap();
+    ) -> ReqResult<TokenPair> {
+        let key = key.to_pkcs8_pem(LineEnding::default())
+            .context("Error parsing key")?;
+        let key = EncodingKey::from_rsa_pem(key.as_bytes())
+            .context("Error parsing key")?;
 
         let header = Header::new(Algorithm::RS256);
         let jti = Uuid::new_v4();
@@ -80,8 +88,10 @@ impl TokenPair {
             iat
         };
 
-        let access_token = encode(&header, &access_claims, &key).unwrap();
-        let refresh_token = encode(&header, &refresh_claims, &key).unwrap();
+        let access_token = encode(&header, &access_claims, &key)
+            .context("Error encoding access token")?;
+        let refresh_token = encode(&header, &refresh_claims, &key)
+            .context("Error encoding refresh token")?;
 
         sqlx::query!(
             r#"INSERT INTO user_session (
@@ -92,66 +102,70 @@ impl TokenPair {
             )"#,
             user_id, jti,
             user_ip, user_agent, user_location
-        ).execute(pool).await.unwrap();
+        ).execute(pool).await?;
 
-        TokenPair {
+        log::warn!("CREATING NEW USER SESSION\nid: {}\nuser_id: {}", jti, user_id);
+        Ok(TokenPair {
             access: access_token,
             refresh: refresh_token
-        }
+        })
     }
 
-    pub async fn delete(pool: &PgPool, session_id: Uuid) {
+    pub async fn delete(
+        pool: &PgPool,
+        session_id: Uuid
+    ) -> ReqResult<()> {
         let res = sqlx::query!(
             r#"DELETE FROM user_session WHERE session_id = $1"#,
             session_id
-        ).execute(pool).await.unwrap();
-        println!("Old session deleted, {} rows affected", res.rows_affected());
+        ).execute(pool).await?;
+        log::warn!("DELETING USER SESSION\nid: {},\nrows affected: {}", session_id, res.rows_affected());
+        Ok(())
     }
 
     pub async fn refresh(
         pool: &PgPool, priv_key: &RsaPrivateKey, pub_key: &RsaPublicKey,
         refresh_token: &str, user_ip: String, user_agent: String, user_location: String
-    ) -> Result<TokenPair, Error> {
-        let claims = Claims::parse(pub_key, refresh_token).unwrap();
+    ) -> ReqResult<TokenPair> {
+        let claims = Claims::parse(pub_key, refresh_token)?;
         let token_exists = sqlx::query!(
             r#"SELECT COUNT(1) FROM user_session WHERE session_id = $1"#,
             claims.jti
-        ).fetch_one(pool).await.unwrap().count.unwrap() == 1;
+        ).fetch_one(pool).await?.count == Some(1);
         
         if !token_exists {
             return Err(Error::Unauthorized);
         }
-        TokenPair::delete(pool, claims.jti).await;
-        Ok(TokenPair::new(pool, priv_key, claims.user_id, user_ip, user_agent, user_location).await)
+        TokenPair::delete(pool, claims.jti).await?;
+        Ok(TokenPair::new(pool, priv_key, claims.user_id, user_ip, user_agent, user_location).await?)
     }
 }
 
 impl Claims {
-    fn parse(key: &RsaPublicKey, token: &str) -> Result<Self, &'static str> {
-        let key = key.to_public_key_pem(LineEnding::default()).unwrap();
-        let key = DecodingKey::from_rsa_pem(key.as_bytes()).unwrap();
+    fn parse(key: &RsaPublicKey, token: &str) -> ReqResult<Self> {
+        let key = key.to_public_key_pem(LineEnding::default())
+            .context("Error parsing key")?;
+        let key = DecodingKey::from_rsa_pem(key.as_bytes())
+            .context("Error parsing key")?;
         let mut validation = Validation::new(Algorithm::RS256);
         validation.set_audience(&["api", "refresh"]);
-        decode(
-            token, &key, &validation
-        ).map_err(|_| {
-            println!("Can not parse token");
-            "Can not parse token"
-        }).map(|t| {
-            t.claims
-        })
+        Ok(
+            decode(token, &key, &validation)
+                .context("Error parsing token")?
+                .claims
+        )
     }
 }
 
 impl AuthUser {
-    async fn from_authorization(state: &AppState, auth_header: &HeaderValue) -> Result<Self, Error> {
+    async fn from_authorization(state: &AppState, auth_header: &HeaderValue) -> ReqResult<Self> {
         let auth_header = auth_header.to_str().map_err(|_| {
-            println!("Can not convert header to string");
+            log::error!("Can not convert header to string");
             Error::Unauthorized
         })?;
 
         if !auth_header.starts_with(PREFIX) {
-            println!("Header does not start with `Bearer `");
+            log::error!("Header does not start with `Bearer `");
             return Err(Error::Unauthorized);
         }
 
@@ -163,13 +177,13 @@ impl AuthUser {
             })?;
         
         if (claims.exp as i64) < OffsetDateTime::now_utc().unix_timestamp() {
-            println!("Token expired");
+            log::info!("Token expired");
             return Err(Error::Unauthorized);
         }
 
         if sqlx::query!(
             r#"SELECT COUNT(1) FROM user_session WHERE session_id = $1"#, claims.jti
-        ).fetch_one(&state.pool).await.unwrap().count.unwrap() == 0 {
+        ).fetch_one(&state.pool).await?.count == Some(0) {
             return Err(Error::Unauthorized);
         }
 
@@ -178,7 +192,7 @@ impl AuthUser {
             SET last_active = $2
             WHERE session_id = $1"#,
             claims.jti, OffsetDateTime::now_utc()
-        ).execute(&state.pool).await.unwrap();
+        ).execute(&state.pool).await?;
 
         Ok(Self {
             user_id: claims.user_id,

@@ -12,9 +12,9 @@ use argon2::{
         rand_core::OsRng
     }
 };
-use crate::utils::Error;
+use crate::utils::{Error, ReqResult};
 
-fn new_argon2() -> Result<Argon2<'static>, Error> {
+fn new_argon2() -> ReqResult<Argon2<'static>> {
     Ok(Argon2::new(
         Algorithm::Argon2id,
         Version::V0x13,
@@ -32,8 +32,8 @@ fn new_argon2() -> Result<Argon2<'static>, Error> {
     ))
 }
 
-pub async fn hash_password(password: String) -> Result<String, Error> {
-    Ok(tokio::task::spawn_blocking(move || -> Result<String, Error> {
+pub async fn hash_password(password: String) -> ReqResult<String> {
+    Ok(tokio::task::spawn_blocking(move || -> ReqResult<String> {
         let salt = SaltString::generate(&mut OsRng);
         let argon2 = new_argon2()?;
         argon2.hash_password(password.as_bytes(), &salt)
@@ -55,8 +55,8 @@ pub async fn hash_password(password: String) -> Result<String, Error> {
     )
 }
 
-pub async fn verify_password(password: String, password_hash: String) -> Result<(), Error> {
-    Ok(tokio::task::spawn_blocking(move || -> Result<(), Error> {
+pub async fn verify_password(password: String, password_hash: String) -> ReqResult<()> {
+    Ok(tokio::task::spawn_blocking(move || -> ReqResult<()> {
         let argon2 = new_argon2()?;
         let password_hash = PasswordHash::new(&password_hash)
             .map_err(|e| {

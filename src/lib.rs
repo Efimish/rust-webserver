@@ -4,7 +4,6 @@ mod services;
 mod models;
 use std::{path::PathBuf, net::SocketAddr, sync::Arc};
 use utils::RsaKeyPair;
-use dotenv::dotenv;
 use axum::{Router, Extension};
 use tower_http::cors::{CorsLayer, Any};
 use sqlx::postgres::PgPool;
@@ -16,8 +15,7 @@ pub struct AppState {
     keys: RsaKeyPair
 }
 
-async fn run() {
-    dotenv().ok();
+pub async fn run() {
     let current_dir: PathBuf = std::env::current_dir()
         .expect("Can not access current directory");
     let data_dir: PathBuf = current_dir.join("data");
@@ -64,3 +62,37 @@ async fn start(app: Router) {
         app.into_make_service_with_connect_info::<SocketAddr>()
     ).await.unwrap();
 }
+
+// use crate::utils::Error;
+// trait Model {
+//     type Add;
+//     type Search;
+//     type Get;
+//     fn add(pool: &PgPool, value: Self::Add) -> Result<(), Error>;
+//     fn get(pool: &PgPool, query: Self::Search) -> Result<Self::Get, Error>;
+//     fn update(pool: &PgPool, query: Self::Search, value: Self::Add) -> Result<(), Error>;
+//     fn delete(pool: &PgPool, query: Self::Search) -> Result<(), Error>;
+// }
+
+// struct User;
+// impl Model for User {
+//     type Add;
+//     type Search = String;
+//     type Get;
+
+//     fn add(pool: &PgPool, value: Self::Add) -> Result<(), Error> {
+//         todo!()
+//     }
+
+//     fn get(pool: &PgPool, query: Self::Search) -> Result<Self::Get, Error> {
+//         todo!()
+//     }
+
+//     fn update(pool: &PgPool, query: Self::Search, value: Self::Add) -> Result<(), Error> {
+//         todo!()
+//     }
+
+//     fn delete(pool: &PgPool, query: Self::Search) -> Result<(), Error> {
+//         todo!()
+//     }
+// }

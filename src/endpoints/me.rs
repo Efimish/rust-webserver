@@ -1,73 +1,79 @@
 use std::sync::Arc;
-use serde::{Serialize, Deserialize};
-use axum::{Router, Extension, Json, http::StatusCode, routing::{get, post}};
+use axum::{Router, Extension, Json, routing::{get, post}, extract::Path};
 use uuid::Uuid;
-use time::OffsetDateTime;
-use crate::{AppState, utils::AuthUser, models::user_model::FullUser};
+use crate::{
+    AppState,
+    utils::{AuthUser, ReqResult},
+    models::{
+        user_model::FullUser,
+        session_model::Session
+    }
+};
 
 pub fn router() -> Router {
     Router::new()
-        .route("/user", get(get_my_user))
-        .route("/sessions", get(get_my_sessions))
-        .route("/sessions/end", post(end_session))
+        .route(
+            "/user",
+            get(get_my_user)
+        )
+        .route(
+            "/sessions",
+            get(get_my_sessions)
+        )
+        .route(
+            "/sessions/end/:id",
+            post(end_session)
+        )
+        .route(
+            "/sessions/endAll",
+            post(end_all_sessions)
+        )
 }
 
 async fn get_my_user(
     Extension(state): Extension<Arc<AppState>>,
     user: AuthUser
-) -> Json<FullUser> {
+) -> ReqResult<Json<FullUser>> {
     let user = sqlx::query_as!(FullUser,
         r#"SELECT * FROM "user" WHERE user_id = $1"#,
         user.user_id
     )
         .fetch_one(&state.pool)
-        .await
-        .unwrap();
+        .await?;
 
-    Json(user)
-}
-
-#[derive(Serialize)]
-struct Session {
-    #[serde(rename = "userId")]
-    user_id: Uuid,
-    #[serde(rename = "sessionId")]
-    session_id: Uuid,
-    #[serde(rename = "userIp")]
-    user_ip: String,
-    #[serde(rename = "userAgent")]
-    user_agent: String,
-    #[serde(rename = "userLocation")]
-    user_location: String,
-    #[serde(rename = "lastActive")]
-    last_active: OffsetDateTime
+    Ok(Json(user))
 }
 
 async fn get_my_sessions(
     Extension(state): Extension<Arc<AppState>>,
     user: AuthUser
-) -> Json<Vec<Session>> {
+) -> ReqResult<Json<Vec<Session>>> {
     let sessions = sqlx::query_as!(
         Session,
         r#"SELECT * FROM user_session WHERE user_id = $1
         ORDER BY last_active DESC"#, user.user_id
-    ).fetch_all(&state.pool).await.unwrap();
-    Json(sessions)
-}
+    ).fetch_all(&state.pool).await?;
 
-
-#[derive(Deserialize)]
-struct EndBody {
-    session_id: Uuid
+    Ok(Json(sessions))
 }
 
 async fn end_session(
     Extension(state): Extension<Arc<AppState>>,
-    _: AuthUser,
-    body: Json<EndBody>
-) -> StatusCode {
+    Path(id): Path<Uuid>,
+    _: AuthUser
+) -> ReqResult<()> {
     sqlx::query!(
-        r#"DELETE FROM user_session WHERE session_id = $1"#, body.session_id
-    ).execute(&state.pool).await.unwrap();
-    StatusCode::OK
+        r#"DELETE FROM user_session WHERE session_id = $1"#, id
+    ).execute(&state.pool).await?;
+    Ok(())
+}
+
+async fn end_all_sessions(
+    Extension(state): Extension<Arc<AppState>>,
+    user: AuthUser
+) -> ReqResult<()> {
+    sqlx::query!(
+        r#"DELETE FROM user_session WHERE user_id = $1"#, user.user_id
+    ).execute(&state.pool).await?;
+    Ok(())
 }
