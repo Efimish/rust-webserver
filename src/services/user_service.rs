@@ -94,6 +94,7 @@ pub async fn add_user(
     )
 }
 
+#[allow(unused)]
 pub async fn delete_user(
     pool: &PgPool,
     username: &str

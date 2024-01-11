@@ -26,14 +26,17 @@ pub enum Error {
 
     /// Return `403 Forbidden`
     #[error("user may not perform that action")]
+    #[allow(unused)]
     Forbidden,
 
     /// Return `404 Not Found`
     #[error("request path not found")]
+    #[allow(unused)]
     NotFound,
 
     /// Return `422 Unprocessable Entity`
     #[error("error in the request body")]
+    #[allow(unused)]
     UnprocessableEntity {
         errors: HashMap<Cow<'static, str>, Vec<Cow<'static, str>>>,
     },
@@ -48,6 +51,7 @@ pub enum Error {
 }
 
 impl Error {
+    #[allow(unused)]
     pub fn unprocessable_entity<K, V>(errors: impl IntoIterator<Item = (K, V)>) -> Self
     where
         K: Into<Cow<'static, str>>,
