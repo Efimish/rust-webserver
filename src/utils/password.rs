@@ -1,4 +1,5 @@
 use anyhow::anyhow;
+use lazy_static::lazy_static;
 use argon2::{
     Argon2,
     Algorithm,
@@ -14,8 +15,8 @@ use argon2::{
 };
 use crate::utils::{Error, ReqResult};
 
-fn new_argon2() -> ReqResult<Argon2<'static>> {
-    Ok(Argon2::new(
+lazy_static! {
+    static ref ARGON2: Argon2<'static> = Argon2::new(
         Algorithm::Argon2id,
         Version::V0x13,
         Params::new(
@@ -23,20 +24,14 @@ fn new_argon2() -> ReqResult<Argon2<'static>> {
             2,
             1,
             Some(32)
-        )
-            .map_err(|e| {
-                Error::Anyhow(
-                    anyhow!("Error creating argon2 params: {}", e)
-                )
-            })?
-    ))
+        ).unwrap()
+    );
 }
 
 pub async fn hash_password(password: String) -> ReqResult<String> {
     Ok(tokio::task::spawn_blocking(move || -> ReqResult<String> {
         let salt = SaltString::generate(&mut OsRng);
-        let argon2 = new_argon2()?;
-        argon2.hash_password(password.as_bytes(), &salt)
+        ARGON2.hash_password(password.as_bytes(), &salt)
             .map_err(|e| {
                 Error::Anyhow(
                     anyhow!("Error hashing password: {}", e)
@@ -57,14 +52,13 @@ pub async fn hash_password(password: String) -> ReqResult<String> {
 
 pub async fn verify_password(password: String, password_hash: String) -> ReqResult<()> {
     Ok(tokio::task::spawn_blocking(move || -> ReqResult<()> {
-        let argon2 = new_argon2()?;
         let password_hash = PasswordHash::new(&password_hash)
             .map_err(|e| {
                 Error::Anyhow(
                     anyhow!("Error getting password hash {}", e)
                 )
             })?;
-        argon2.verify_password(password.as_bytes(), &password_hash)
+        ARGON2.verify_password(password.as_bytes(), &password_hash)
             .map_err(|_| {
                 Error::BadRequest
             })

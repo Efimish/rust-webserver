@@ -1,7 +1,7 @@
 #![allow(unused)]
 use std::net::SocketAddr;
 use axum::{Router, http::HeaderMap, Json, routing::get, extract::{ConnectInfo, Path}};
-use crate::{AppState, utils::{RequestInfo, Error, ReqResult}};
+use crate::{AppState, utils::{Error, ReqResult, DeviceInfo}};
 
 pub fn router() -> Router {
     Router::new()
@@ -12,13 +12,7 @@ pub fn router() -> Router {
 }
 
 async fn ip_and_agent(
-    ConnectInfo(connect_info): ConnectInfo<SocketAddr>,
-    headers: HeaderMap
-) -> ReqResult<Json<RequestInfo>> {
-    let ip = connect_info.to_string();
-    let ip = ip.split_once(":").unwrap().0;
-    let agent = headers["user-agent"].to_str().unwrap();
-    let info = RequestInfo::get(ip, agent).await?;
-
+    info: DeviceInfo
+) -> ReqResult<Json<DeviceInfo>> {
     Ok(Json(info))
 }

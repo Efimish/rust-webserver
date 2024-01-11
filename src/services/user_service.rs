@@ -2,11 +2,11 @@ use sqlx::postgres::PgPool;
 use uuid::Uuid;
 use crate::utils::{Error, ReqResult};
 use crate::models::user_model::{
-    AddUser,
-    BaseUser
+    FixedRegisterBody,
+    BaseUser, FixedLoginBody
 };
 
-async fn verify_available(
+async fn find_user(
     pool: &PgPool,
     username: &str
 ) -> ReqResult<bool> {
@@ -19,7 +19,28 @@ async fn verify_available(
     )
         .fetch_one(pool)
         .await?
-        .count == Some(0)
+        .count == Some(1)
+    )
+}
+
+pub async fn get_user_password(
+    pool: &PgPool,
+    username: &str
+) -> ReqResult<FixedLoginBody> {
+    if !find_user(pool, username).await? {
+        return Err(Error::BadRequest);
+    }
+    Ok(sqlx::query_as!(
+        FixedLoginBody,
+        r#"
+        SELECT user_id, password_hash
+        FROM "user"
+        WHERE username = $1
+        "#,
+        username
+    )
+        .fetch_one(pool)
+        .await?
     )
 }
 
@@ -27,11 +48,14 @@ pub async fn get_user(
     pool: &PgPool,
     username: &str
 ) -> ReqResult<BaseUser> {
-    // verify_spelling(username)?;
+    if !find_user(pool, username).await? {
+        return Err(Error::BadRequest);
+    }
     Ok(sqlx::query_as!(
         BaseUser,
         r#"
-        SELECT username, display_name, status FROM "user"
+        SELECT username, display_name, status
+        FROM "user"
         WHERE username = $1
         "#,
         username
@@ -43,9 +67,9 @@ pub async fn get_user(
 
 pub async fn add_user(
     pool: &PgPool,
-    user: AddUser
+    user: FixedRegisterBody
 ) -> ReqResult<Uuid> {
-    if !verify_available(pool, &user.username).await? {
+    if find_user(pool, &user.username).await? {
         return Err(Error::BadRequest);
     };
 
@@ -54,9 +78,10 @@ pub async fn add_user(
         INSERT INTO "user" (
             username,
             email,
-            password_hash
+            password_hash,
+            display_name
         ) VALUES (
-            $1, $2, $3
+            $1, $2, $3, $1
         ) RETURNING user_id
         "#,
         user.username,
@@ -73,8 +98,7 @@ pub async fn delete_user(
     pool: &PgPool,
     username: &str
 ) -> ReqResult<()> {
-    // verify_spelling(username)?;
-    if verify_available(pool, username).await? {
+    if !find_user(pool, username).await? {
         return Err(Error::BadRequest);
     }
     

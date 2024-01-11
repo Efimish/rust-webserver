@@ -7,7 +7,7 @@ use super::Timestampz;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct FullUser {
+pub struct DBUser {
     pub user_id: Uuid,
     pub username: String,
     pub email: String,
@@ -16,6 +16,15 @@ pub struct FullUser {
     pub status: Option<String>,
     pub created_at: Timestampz,
     pub updated_at: Timestampz
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FullUser {
+    pub username: String,
+    pub email: String,
+    pub display_name: String,
+    pub status: Option<String>
 }
 
 #[derive(Serialize, Deserialize)]
@@ -62,7 +71,7 @@ pub struct RegisterBody {
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct AddUser {
+pub struct FixedRegisterBody {
     pub username: String,
     pub email: String,
     pub password_hash: String
@@ -73,6 +82,13 @@ pub struct AddUser {
 pub struct LoginBody {
     pub username: String,
     pub password: String
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FixedLoginBody {
+    pub user_id: Uuid,
+    pub password_hash: String
 }
 
 #[derive(Deserialize)]

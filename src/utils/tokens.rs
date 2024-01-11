@@ -11,7 +11,8 @@ use crate::{
     utils::{
         Error,
         ReqResult
-    }
+    },
+    models::session_model::NewSession, services::auth_service::{add_user_session, remove_user_session, find_session}
 };
 
 use async_trait::async_trait;
@@ -24,6 +25,8 @@ use axum::{
         header::AUTHORIZATION
     }
 };
+
+use super::DeviceInfo;
 
 const PREFIX: &str = "Bearer ";
 const ACCESS_LIFE_TIME: Duration = Duration::minutes(10);
@@ -55,9 +58,9 @@ pub struct MaybeAuthUser(pub Option<AuthUser>);
 
 impl TokenPair {
     pub async fn new(
-        pool: &PgPool, key: &RsaPrivateKey,
-        user_id: Uuid, user_ip: String,
-        user_agent: String, user_location: String
+        pool: &PgPool,
+        key: &RsaPrivateKey,
+        session: NewSession
     ) -> ReqResult<TokenPair> {
         let key = key.to_pkcs8_pem(LineEnding::default())
             .context("Error parsing key")?;
@@ -66,6 +69,7 @@ impl TokenPair {
 
         let header = Header::new(Algorithm::RS256);
         let jti = Uuid::new_v4();
+        let session = session.to_base(jti);
 
         let now = OffsetDateTime::now_utc();
         let iat = now.unix_timestamp() as usize;
@@ -75,7 +79,7 @@ impl TokenPair {
         let access_claims = Claims {
             jti,
             aud: "api".to_string(),
-            user_id,
+            user_id: session.user_id,
             exp: access_exp,
             iat
         };
@@ -83,7 +87,7 @@ impl TokenPair {
         let refresh_claims = Claims {
             jti,
             aud: "refresh".to_string(),
-            user_id,
+            user_id: session.user_id,
             exp: refresh_exp,
             iat
         };
@@ -93,18 +97,9 @@ impl TokenPair {
         let refresh_token = encode(&header, &refresh_claims, &key)
             .context("Error encoding refresh token")?;
 
-        sqlx::query!(
-            r#"INSERT INTO user_session (
-                user_id, session_id,
-                user_ip, user_agent, user_location
-            ) VALUES (
-                $1, $2, $3, $4, $5
-            )"#,
-            user_id, jti,
-            user_ip, user_agent, user_location
-        ).execute(pool).await?;
+        log::warn!("CREATING NEW USER SESSION\nid: {}\nuser_id: {}", jti, session.user_id);
+        add_user_session(pool, session).await?;
 
-        log::warn!("CREATING NEW USER SESSION\nid: {}\nuser_id: {}", jti, user_id);
         Ok(TokenPair {
             access: access_token,
             refresh: refresh_token
@@ -115,34 +110,33 @@ impl TokenPair {
         pool: &PgPool,
         session_id: Uuid
     ) -> ReqResult<()> {
-        let res = sqlx::query!(
-            r#"DELETE FROM user_session WHERE session_id = $1"#,
-            session_id
-        ).execute(pool).await?;
-        log::warn!("DELETING USER SESSION\nid: {},\nrows affected: {}", session_id, res.rows_affected());
+        log::warn!("DELETING USER SESSION\nid: {}", session_id);
+        remove_user_session(pool, session_id).await?;
         Ok(())
     }
 
     pub async fn refresh(
-        pool: &PgPool, priv_key: &RsaPrivateKey, pub_key: &RsaPublicKey,
-        refresh_token: &str, user_ip: String, user_agent: String, user_location: String
+        pool: &PgPool,
+        priv_key: &RsaPrivateKey,
+        pub_key: &RsaPublicKey,
+        refresh_token: &str,
+        info: DeviceInfo
     ) -> ReqResult<TokenPair> {
         let claims = Claims::parse(pub_key, refresh_token)?;
-        let token_exists = sqlx::query!(
-            r#"SELECT COUNT(1) FROM user_session WHERE session_id = $1"#,
-            claims.jti
-        ).fetch_one(pool).await?.count == Some(1);
-        
-        if !token_exists {
+        if !find_session(pool, claims.jti).await? {
             return Err(Error::Unauthorized);
         }
         TokenPair::delete(pool, claims.jti).await?;
-        Ok(TokenPair::new(pool, priv_key, claims.user_id, user_ip, user_agent, user_location).await?)
+        let session = info.to_session(claims.user_id);
+        Ok(TokenPair::new(pool, priv_key, session).await?)
     }
 }
 
 impl Claims {
-    fn parse(key: &RsaPublicKey, token: &str) -> ReqResult<Self> {
+    fn parse(
+        key: &RsaPublicKey,
+        token: &str
+    ) -> ReqResult<Self> {
         let key = key.to_public_key_pem(LineEnding::default())
             .context("Error parsing key")?;
         let key = DecodingKey::from_rsa_pem(key.as_bytes())
@@ -158,7 +152,10 @@ impl Claims {
 }
 
 impl AuthUser {
-    async fn from_authorization(state: &AppState, auth_header: &HeaderValue) -> ReqResult<Self> {
+    async fn from_authorization(
+        state: &AppState,
+        auth_header: &HeaderValue
+    ) -> ReqResult<Self> {
         let auth_header = auth_header.to_str().map_err(|_| {
             log::error!("Can not convert header to string");
             Error::Unauthorized
@@ -181,18 +178,20 @@ impl AuthUser {
             return Err(Error::Unauthorized);
         }
 
-        if sqlx::query!(
-            r#"SELECT COUNT(1) FROM user_session WHERE session_id = $1"#, claims.jti
-        ).fetch_one(&state.pool).await?.count == Some(0) {
+        if !find_session(&state.pool, claims.jti).await? {
             return Err(Error::Unauthorized);
         }
 
         sqlx::query!(
-            r#"UPDATE user_session
+            r#"
+            UPDATE user_session
             SET last_active = $2
-            WHERE session_id = $1"#,
+            WHERE session_id = $1
+            "#,
             claims.jti, OffsetDateTime::now_utc()
-        ).execute(&state.pool).await?;
+        )
+            .execute(&state.pool)
+            .await?;
 
         Ok(Self {
             user_id: claims.user_id,
