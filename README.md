@@ -1,5 +1,6 @@
 # Rust webserver
-Simple web server written in `Rust` using `axum` framwork, `PostgreSQL` and `sqlx` for queries.
+Simple web server written in `Rust` using `axum` framwork, `PostgreSQL` and `sqlx` for queries.\
+Frontend to test this: [`website`](../../../website)
 
 ### Installation
 1. Clone this repo
@@ -13,5 +14,5 @@ Simple web server written in `Rust` using `axum` framwork, `PostgreSQL` and `sql
 - [ ] Make a normal error enum
 - [ ] Make a normal database schema
 - [ ] Make models and static queries for them (imitating ORM)
-- [ ] Add working authorization
-- [ ] Add a simple front-end (I plan on using `svelte`)
+- [x] Add working authorization
+- [ ] Make front-end website work (at least)
