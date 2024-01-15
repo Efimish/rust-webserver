@@ -21,6 +21,7 @@ pub struct DBUser {
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FullUser {
+    pub user_id: Uuid,
     pub username: String,
     pub email: String,
     pub display_name: String,
@@ -30,6 +31,7 @@ pub struct FullUser {
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BaseUser {
+    pub user_id: Uuid,
     pub username: String,
     pub display_name: String,
     pub status: Option<String>

@@ -45,8 +45,8 @@ async fn login(
     let password_hash = found_user.password_hash;
     verify_password(body.password.clone(), password_hash).await?;
     log::debug!("----- Logging in -----\nUsername: {}\nPassword: {}\nIp: {}\nOS: {}", body.username, body.password, info.ip, info.os);
-    if let Some(u) = user.user_id() {
-        TokenPair::delete(&state.pool, u).await?;
+    if let Some(u) = user.0 {
+        TokenPair::delete(&state.pool, u.user_id, u.session_id).await?;
     }
     let session = info.to_session(user_id);
     let tokens = TokenPair::new(
@@ -99,6 +99,6 @@ async fn logout(
     Extension(state): Extension<Arc<AppState>>,
     user: AuthUser
 ) -> ReqResult<()> {
-    TokenPair::delete(&state.pool, user.session_id).await?;
+    TokenPair::delete(&state.pool, user.user_id, user.session_id).await?;
     Ok(())
 }

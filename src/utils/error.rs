@@ -16,7 +16,7 @@ pub enum Error {
     #[error("bad request")]
     BadRequest,
 
-    /// Return `400 Bad Request`
+    /// Return `400 Bad Request` on validation error
     #[error("bad request")]
     Validator(#[from] validator::ValidationErrors),
 
@@ -84,13 +84,16 @@ impl Error {
 impl IntoResponse for Error {
     fn into_response(self) -> Response<Body> {
         match self {
-            Error::UnprocessableEntity { errors } => {
+            Error::UnprocessableEntity { ref errors } => {
                 #[derive(Serialize)]
                 struct Error {
                     errors: HashMap<Cow<'static, str>, Vec<Cow<'static, str>>>
                 }
 
-                return (StatusCode::UNPROCESSABLE_ENTITY, Json(Error { errors })).into_response();
+                return (
+                    self.status_code(),
+                    Json(Error { errors: errors.clone() })
+                ).into_response();
             }
             Error::Unauthorized => {
                 return (
@@ -122,11 +125,25 @@ impl IntoResponse for Error {
                         (code, e.iter().map(|er| er.message.clone()).collect())
                     })
                     .collect();
-                return (self.status_code(), Json(Error { message, errors })).into_response();
+                return (
+                    self.status_code(),
+                    Json(Error { message, errors })
+                ).into_response();
             }
             _ => ()
         }
-        (self.status_code(), self.to_string()).into_response()
+        #[derive(Serialize)]
+        struct ResponseError {
+            message: String
+        }
+        (
+            self.status_code(),
+            Json(
+                ResponseError {
+                    message: self.to_string()
+                }
+            )
+        ).into_response()
     }
 }
 

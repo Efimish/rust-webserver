@@ -44,8 +44,11 @@ pub async fn run() {
 
     let app: Router = Router::new()
         .nest("/auth", endpoints::auth_router())
+        .nest("/sessions", endpoints::sessions_router())
         .nest("/me", endpoints::me_router())
         .nest("/users", endpoints::users_router())
+        .nest("/chats", endpoints::chats_router())
+        .nest("/messages", endpoints::messages_router())
         .nest("/test", endpoints::test_router())
         .layer(cors)
         .layer(Extension(state));

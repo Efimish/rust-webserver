@@ -3,7 +3,7 @@ use uuid::Uuid;
 use crate::utils::{Error, ReqResult};
 use crate::models::user_model::{
     FixedRegisterBody,
-    BaseUser, FixedLoginBody
+    BaseUser, FixedLoginBody, FullUser
 };
 
 async fn find_user(
@@ -54,7 +54,7 @@ pub async fn get_user(
     Ok(sqlx::query_as!(
         BaseUser,
         r#"
-        SELECT username, display_name, status
+        SELECT user_id, username, display_name, status
         FROM "user"
         WHERE username = $1
         "#,
@@ -122,10 +122,29 @@ pub async fn get_users(
     Ok(sqlx::query_as!(
         BaseUser,
         r#"
-        SELECT username, display_name, status FROM "user"
+        SELECT user_id, username, display_name, status
+        FROM "user"
         "#
     )
         .fetch_all(pool)
+        .await?
+    )
+}
+
+pub async fn get_full_user(
+    pool: &PgPool,
+    user_id: Uuid
+) -> ReqResult<FullUser> {
+    Ok(sqlx::query_as!(
+        FullUser,
+        r#"
+        SELECT user_id, username, email, display_name, status
+        FROM "user"
+        WHERE user_id = $1
+        "#,
+        user_id
+    )
+        .fetch_one(pool)
         .await?
     )
 }

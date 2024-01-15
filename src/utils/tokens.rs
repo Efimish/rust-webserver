@@ -10,11 +10,11 @@ use crate::{
     AppState,
     utils::{
         Error,
-        ReqResult
+        ReqResult,
+        DeviceInfo
     },
     models::session_model::NewSession, services::auth_service::{add_user_session, remove_user_session, find_session}
 };
-
 use async_trait::async_trait;
 use axum::{
     Extension,
@@ -26,13 +26,9 @@ use axum::{
     }
 };
 
-use super::DeviceInfo;
-
 const PREFIX: &str = "Bearer ";
 const ACCESS_LIFE_TIME: Duration = Duration::minutes(10);
-// const ACCESS_LIFE_TIME: Duration = Duration::seconds(20);
 const REFRESH_LIFE_TIME: Duration = Duration::days(30);
-
 
 #[derive(Serialize)]
 pub struct TokenPair {
@@ -108,10 +104,11 @@ impl TokenPair {
 
     pub async fn delete(
         pool: &PgPool,
+        user_id: Uuid,
         session_id: Uuid
     ) -> ReqResult<()> {
         log::warn!("DELETING USER SESSION\nid: {}", session_id);
-        remove_user_session(pool, session_id).await?;
+        remove_user_session(pool, user_id, session_id).await?;
         Ok(())
     }
 
@@ -126,7 +123,7 @@ impl TokenPair {
         if !find_session(pool, claims.jti).await? {
             return Err(Error::Unauthorized);
         }
-        TokenPair::delete(pool, claims.jti).await?;
+        TokenPair::delete(pool, claims.user_id, claims.jti).await?;
         let session = info.to_session(claims.user_id);
         Ok(TokenPair::new(pool, priv_key, session).await?)
     }
@@ -201,8 +198,12 @@ impl AuthUser {
 }
 
 impl MaybeAuthUser {
+    #[allow(unused)]
     pub fn user_id(&self) -> Option<Uuid> {
         self.0.as_ref().map(|user| user.user_id)
+    }
+    pub fn session_id(&self) -> Option<Uuid> {
+        self.0.as_ref().map(|user| user.session_id)
     }
 }
 
