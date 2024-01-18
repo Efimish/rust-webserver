@@ -21,15 +21,50 @@ insert into chat (
     chat_name
 ) values ('Chat 1'), ('Chat 2'), ('Chat 3');
 
--- insert into chat_user (
---     user_id, chat_id
--- ) values (
---     select user_id from "user" where username='user1',
---     select chat_id from chat where chat_name='Chat 1'
--- ), (
---     select user_id from "user" where username='user2',
---     select chat_id from chat where chat_name='Chat 1'
--- ), (
---     select user_id from "user" where username='user3',
---     select chat_id from chat where chat_name='Chat 1'
--- );
+insert into chat_user (
+    user_id, chat_id
+)
+select user_id, chat_id
+from "user", chat
+where "user".username = 'user1'
+and chat.chat_name = 'Chat 1'
+    union
+select user_id, chat_id
+from "user", chat
+where "user".username = 'user2'
+and chat.chat_name = 'Chat 1'
+    union
+select user_id, chat_id
+from "user", chat
+where "user".username = 'user3'
+and chat.chat_name = 'Chat 1'
+    union
+select user_id, chat_id
+from "user", chat
+where "user".username = 'user4'
+and chat.chat_name = 'Chat 1'
+    union
+select user_id, chat_id
+from "user", chat
+where "user".username = 'user5'
+and chat.chat_name = 'Chat 1'
+    union
+select user_id, chat_id
+from "user", chat
+where "user".username = 'user1'
+and chat.chat_name = 'Chat 2'
+    union
+select user_id, chat_id
+from "user", chat
+where "user".username = 'user2'
+and chat.chat_name = 'Chat 2'
+    union
+select user_id, chat_id
+from "user", chat
+where "user".username = 'user3'
+and chat.chat_name = 'Chat 2'
+    union
+select user_id, chat_id
+from "user", chat
+where "user".username = 'user1'
+and chat.chat_name = 'Chat 3';
