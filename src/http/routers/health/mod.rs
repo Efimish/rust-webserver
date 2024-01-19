@@ -19,14 +19,14 @@ pub fn router() -> Router {
 #[serde(rename_all = "camelCase")]
 struct DatabaseHealth {
     status: bool,
-    ping: Option<f32>
+    ping: Option<u128>
 }
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 struct ThirdPartyHealth {
     status: bool,
-    ping: Option<f32>
+    ping: Option<u128>
 }
 
 #[derive(Serialize)]
@@ -59,7 +59,7 @@ async fn test_database(
     .fetch_one(pool).await.is_ok() {
         DatabaseHealth {
             status: true,
-            ping: Some(now.elapsed().as_secs_f32())
+            ping: Some(now.elapsed().as_millis())
         }
     } else {
         DatabaseHealth {
@@ -78,7 +78,7 @@ async fn test_ip_api(
     .await.is_ok() {
         ThirdPartyHealth {
             status: true,
-            ping: Some(now.elapsed().as_secs_f32()),
+            ping: Some(now.elapsed().as_millis()),
         }
     } else {
         ThirdPartyHealth {
