@@ -1,6 +1,6 @@
 use axum::{Router, Extension};
 use reqwest::Client;
-use tower_http::cors::{CorsLayer, Any};
+use tower_http::cors::CorsLayer;
 use sqlx::postgres::PgPool;
 use std::sync::Arc;
 mod health;
@@ -17,22 +17,7 @@ pub struct AppState {
 }
 
 pub async fn router() -> Router {
-    let db_url: String = std::env::var("DATABASE_URL")
-        .expect("Can not read DATABASE_URL env variable");
-
-    let pool = PgPool::connect(&db_url).await
-        .expect("Can not connect to the database");
-
-    let client = Client::new();
-
-    let state = Arc::new(AppState {
-        pool, client
-    });
-
-    let cors = CorsLayer::new()
-        .allow_headers(Any)
-        .allow_origin(Any);
-
+    let state = Arc::new(AppState::init().await);
     Router::new()
         .nest("/health", health::router())
         .nest("/auth", auth::router())
@@ -40,6 +25,30 @@ pub async fn router() -> Router {
         .nest("/user", user::router())
         .nest("/users", users::router())
         .nest("/chats", chats::router())
-        .layer(cors)
+        .layer(cors())
         .layer(Extension(state))
+}
+
+fn cors() -> CorsLayer {
+    use tower_http::cors::Any;
+    CorsLayer::new()
+        .allow_methods(Any)
+        .allow_headers(Any)
+        .allow_origin(Any)
+}
+
+impl AppState {
+    async fn init() -> Self {
+        let db_url = std::env::var("DATABASE_URL")
+            .expect("Can not read DATABASE_URL env variable");
+
+        let pool = PgPool::connect(&db_url).await
+            .expect("Can not connect to the database");
+
+        let client = Client::new();
+
+        Self {
+            pool, client
+        }
+    }
 }
