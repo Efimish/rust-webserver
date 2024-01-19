@@ -8,6 +8,7 @@ use lazy_static::lazy_static;
 use jsonwebtoken::{EncodingKey, DecodingKey, Validation, Algorithm, Header};
 use time::{Duration, OffsetDateTime};
 use sqlx::PgPool;
+use utoipa::ToSchema;
 use uuid::Uuid;
 use super::{HttpResult, HttpError, DeviceInfo, AppState};
 
@@ -31,7 +32,7 @@ pub struct Claims {
     pub iat: usize
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 pub struct TokenPair {
     pub access: String,
     pub refresh: String

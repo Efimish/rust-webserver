@@ -1,6 +1,6 @@
 use axum::{Router, routing::get};
-mod get_all_users;
-mod get_user;
+pub mod get_all_users;
+pub mod get_user;
 use get_all_users::get_all_users;
 use get_user::get_user;
 

@@ -2,11 +2,12 @@ use std::sync::Arc;
 
 use axum::{Extension, Json, extract::Path};
 use serde::Serialize;
+use utoipa::ToSchema;
 use uuid::Uuid;
 
 use crate::http::{HttpResult, AppState, AuthUser, HttpError};
 
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct Message {
     pub message_id: Uuid,
@@ -15,6 +16,14 @@ pub struct Message {
     pub context: String
 }
 
+#[utoipa::path(
+    get,
+    path = "/chats/{chat_id}/messages",
+    responses(
+        (status = OK, description = "Get all messages from one chat", body = [Message])
+    ),
+    tag = "chats"
+)]
 pub async fn get_chat_messages(
     Extension(state): Extension<Arc<AppState>>,
     user: AuthUser,

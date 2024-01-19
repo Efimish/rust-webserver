@@ -3,6 +3,14 @@ use std::sync::Arc;
 use axum::Extension;
 use crate::http::{HttpResult, AppState, AuthUser};
 
+#[utoipa::path(
+    post,
+    path = "/sessions/endAll",
+    responses(
+        (status = OK, description = "All sessions ended")
+    ),
+    tag = "sessions"
+)]
 pub async fn end_all_sessions(
     Extension(state): Extension<Arc<AppState>>,
     user: AuthUser,

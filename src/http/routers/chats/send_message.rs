@@ -2,16 +2,26 @@ use std::sync::Arc;
 
 use axum::{Extension, Json, extract::Path};
 use serde::Deserialize;
+use utoipa::ToSchema;
 use uuid::Uuid;
 
 use crate::http::{HttpResult, AppState, AuthUser, HttpError};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateMessageBody {
     pub context: String
 }
 
+#[utoipa::path(
+    post,
+    path = "/chats/{chat_id}/messages",
+    request_body = CreateMessageBody,
+    responses(
+        (status = OK, description = "Sends a message to one chat")
+    ),
+    tag = "chats"
+)]
 pub async fn send_message(
     Extension(state): Extension<Arc<AppState>>,
     user: AuthUser,

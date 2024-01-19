@@ -1,15 +1,25 @@
 use std::sync::Arc;
 use axum::{Json, Extension};
 use serde::Deserialize;
+use utoipa::ToSchema;
 use crate::http::{AppState, HttpResult, HttpError, DeviceInfo, MaybeAuthUser, TokenPair, password::verify_password};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct LoginBody {
     pub username: String,
     pub password: String
 }
 
+#[utoipa::path(
+    post,
+    path = "/auth/login",
+    request_body = LoginBody,
+    responses(
+        (status = OK, description = "Logs you in and creates new session", body = TokenPair)
+    ),
+    tag = "users"
+)]
 pub async fn login(
     Extension(state): Extension<Arc<AppState>>,
     info: DeviceInfo,

@@ -2,11 +2,12 @@ use std::sync::Arc;
 
 use axum::{Extension, Json};
 use serde::Deserialize;
+use utoipa::ToSchema;
 
 use crate::http::{HttpResult, HttpError, error::ResultExt, AppState, AuthUser, password::hash_password};
 use super::get_my_user::User;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct EditUserBody {
     pub username: Option<String>,
@@ -16,6 +17,15 @@ pub struct EditUserBody {
     pub status: Option<String>
 }
 
+#[utoipa::path(
+    put,
+    path = "/user",
+    request_body = EditUserBody,
+    responses(
+        (status = OK, description = "You edit your user", body = User)
+    ),
+    tag = "users"
+)]
 pub async fn edit_my_user(
     Extension(state): Extension<Arc<AppState>>,
     user: AuthUser,

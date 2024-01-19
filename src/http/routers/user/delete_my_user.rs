@@ -4,6 +4,14 @@ use axum::Extension;
 
 use crate::http::{HttpResult, AppState, AuthUser};
 
+#[utoipa::path(
+    delete,
+    path = "/user",
+    responses(
+        (status = OK, description = "You delete your user", body = User)
+    ),
+    tag = "users"
+)]
 pub async fn delete_my_user(
     Extension(state): Extension<Arc<AppState>>,
     user: AuthUser,

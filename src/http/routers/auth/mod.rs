@@ -1,8 +1,8 @@
 use axum::{Router, routing::post};
-mod login;
-mod register;
-mod refresh;
-mod logout;
+pub mod login;
+pub mod register;
+pub mod refresh;
+pub mod logout;
 use login::login;
 use register::register;
 use refresh::refresh;

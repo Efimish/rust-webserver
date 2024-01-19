@@ -2,11 +2,12 @@ use std::sync::Arc;
 
 use axum::{Extension, Json};
 use serde::Serialize;
+use utoipa::ToSchema;
 use uuid::Uuid;
 
 use crate::http::{HttpResult, AppState, AuthUser, Timestampz};
 
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct Session {
     pub user_id: Uuid,
@@ -18,6 +19,14 @@ pub struct Session {
     pub last_active: Timestampz
 }
 
+#[utoipa::path(
+    get,
+    path = "/sessions",
+    responses(
+        (status = OK, description = "Get all your sessions", body = [Session])
+    ),
+    tag = "sessions"
+)]
 pub async fn get_all_sessions(
     Extension(state): Extension<Arc<AppState>>,
     user: AuthUser

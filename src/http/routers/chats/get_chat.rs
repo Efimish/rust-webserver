@@ -13,6 +13,14 @@ pub struct Chat {
     pub chat_name: String
 }
 
+#[utoipa::path(
+    get,
+    path = "/chats/{chat_id}",
+    responses(
+        (status = OK, description = "Get a single chat", body = Chat)
+    ),
+    tag = "chats"
+)]
 pub async fn get_chat(
     Extension(state): Extension<Arc<AppState>>,
     user: AuthUser,

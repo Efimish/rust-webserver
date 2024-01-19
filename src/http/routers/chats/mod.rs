@@ -1,10 +1,10 @@
 use axum::{Router, routing::get};
-mod get_all_chats;
-mod create_chat;
-mod get_chat;
-mod delete_chat;
-mod get_chat_messages;
-mod send_message;
+pub mod get_all_chats;
+pub mod create_chat;
+pub mod get_chat;
+pub mod delete_chat;
+pub mod get_chat_messages;
+pub mod send_message;
 
 use get_all_chats::get_all_chats;
 use create_chat::create_chat;

@@ -2,11 +2,12 @@ use std::sync::Arc;
 
 use axum::{Extension, Json, extract::Path};
 use serde::Serialize;
+use utoipa::ToSchema;
 use uuid::Uuid;
 
 use crate::http::{HttpResult, AppState, AuthUser};
 
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct User {
     pub user_id: Uuid,
@@ -15,6 +16,14 @@ pub struct User {
     pub status: Option<String>
 }
 
+#[utoipa::path(
+    get,
+    path = "/users/{user_id}",
+    responses(
+        (status = OK, description = "Returns one user", body = User)
+    ),
+    tag = "users"
+)]
 pub async fn get_user(
     Extension(state): Extension<Arc<AppState>>,
     _: AuthUser,

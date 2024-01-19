@@ -1,5 +1,6 @@
 use std::{sync::Arc, time::Instant};
 use axum::{Router, routing::get, Json, Extension};
+use utoipa::ToSchema;
 use reqwest::Client;
 use serde::Serialize;
 use sqlx::PgPool;
@@ -15,28 +16,36 @@ pub fn router() -> Router {
         )
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
-struct DatabaseHealth {
+pub struct DatabaseHealth {
     status: bool,
     ping: Option<f32>
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
-struct ThirdPartyHealth {
+pub struct ThirdPartyHealth {
     status: bool,
     ping: Option<f32>
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
-struct Health {
+pub struct Health {
     status: bool,
     database: DatabaseHealth,
     third_party: ThirdPartyHealth,
 }
 
+#[utoipa::path(
+    get,
+    path = "/health",
+    responses(
+        (status = OK, description = "App is ok and alive", body = Health)
+    ),
+    tag = "health"
+)]
 async fn check_health(
     Extension(state): Extension<Arc<AppState>>
 ) -> HttpResult<Json<Health>> {

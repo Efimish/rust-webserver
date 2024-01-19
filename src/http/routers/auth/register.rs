@@ -3,6 +3,7 @@ use axum::{Json, Extension};
 use lazy_static::lazy_static;
 use regex::Regex;
 use serde::Deserialize;
+use utoipa::ToSchema;
 use validator::Validate;
 use crate::http::password::hash_password;
 use crate::http::routers::AppState;
@@ -12,7 +13,7 @@ lazy_static! {
     static ref USERNAME_REGEX: Regex = Regex::new(r"^\w+$").unwrap();
 }
 
-#[derive(Deserialize, Validate)]
+#[derive(Deserialize, Validate, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct RegisterBody {
     #[validate(
@@ -42,6 +43,15 @@ pub struct RegisterBody {
     pub password: String
 }
 
+#[utoipa::path(
+    post,
+    path = "/auth/register",
+    request_body = RegisterBody,
+    responses(
+        (status = OK, description = "Creates a new user and session", body = TokenPair)
+    ),
+    tag = "users"
+)]
 pub async fn register(
     Extension(state): Extension<Arc<AppState>>,
     info: DeviceInfo,

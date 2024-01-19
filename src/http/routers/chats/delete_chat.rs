@@ -5,6 +5,14 @@ use uuid::Uuid;
 
 use crate::http::{HttpResult, AppState, AuthUser};
 
+#[utoipa::path(
+    delete,
+    path = "/chats/{chat_id}",
+    responses(
+        (status = OK, description = "Chat was deleted")
+    ),
+    tag = "chats"
+)]
 pub async fn delete_chat(
     Extension(state): Extension<Arc<AppState>>,
     _: AuthUser,
