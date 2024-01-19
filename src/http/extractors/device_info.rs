@@ -9,8 +9,7 @@ use axum::{
     extract::{FromRequestParts, ConnectInfo},
     http::{request::Parts, header::USER_AGENT}, Extension
 };
-use crate::http::{HttpError, HttpResult};
-use super::AppState;
+use crate::http::{HttpError, HttpResult, routers::AppState};
 
 #[derive(Serialize)]
 pub struct DeviceInfo {

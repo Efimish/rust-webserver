@@ -9,7 +9,8 @@ use jsonwebtoken::{EncodingKey, DecodingKey, Validation, Algorithm, Header};
 use time::{Duration, OffsetDateTime};
 use sqlx::PgPool;
 use uuid::Uuid;
-use super::{HttpResult, HttpError, DeviceInfo, AppState};
+use crate::http::{HttpResult, HttpError, routers::AppState};
+use super::DeviceInfo;
 
 pub struct AuthUser {
     pub user_id: Uuid,
