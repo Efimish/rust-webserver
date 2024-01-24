@@ -11,7 +11,7 @@ Frontend to test this: [`website`](../../../website)
 6. Now you can start the server (`cargo run`)
 
 ### To-do list
-- [ ] Make a normal error enum
+- [x] Make a normal error enum
 - [ ] Make a normal database schema
 - [ ] Make models and static queries for them (imitating ORM)
 - [x] Add working authorization
