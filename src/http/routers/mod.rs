@@ -11,6 +11,7 @@ mod sessions;
 mod user;
 mod users;
 mod chats;
+mod upload;
 /// remove later
 mod test;
 
@@ -33,6 +34,7 @@ pub async fn router() -> Router {
         .nest("/user", user::router())
         .nest("/users", users::router())
         .nest("/chats", chats::router())
+        .nest("/upload", upload::router())
         .nest("/test", test::router())
         .layer(cors())
         .layer(Extension(state))

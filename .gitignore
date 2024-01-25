@@ -2,6 +2,7 @@
 .DS_Store
 /.vscode
 /data
+/uploads/*
 .env
 !.env.example
 /*.sql
