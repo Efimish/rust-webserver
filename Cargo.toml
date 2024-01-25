@@ -10,10 +10,11 @@ repository = "https://github.com/Efimish/rust-webserver"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-# Core dependencies: runtime, HTTP framework and database client.
+# Core dependencies: runtime, HTTP framework and database clients.
 tokio = { version = "1.34.0", features = ["full"] }
 axum = "0.7.1"
 sqlx = { version = "0.7.3", features = ["runtime-tokio", "postgres", "time", "uuid"] }
+redis = { version = "0.24.0", features = ["tokio-comp", "connection-manager"] }
 
 # [de]serialization and validation
 serde = { version = "1.0.193", features = ["derive"] }

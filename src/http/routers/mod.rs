@@ -2,6 +2,8 @@ use axum::{Router, Extension};
 use reqwest::Client;
 use tower_http::cors::CorsLayer;
 use sqlx::postgres::PgPool;
+use tokio::sync::Mutex;
+use redis::aio::ConnectionManager;
 use std::sync::Arc;
 mod health;
 mod auth;
@@ -12,7 +14,11 @@ mod chats;
 
 #[derive(Clone)]
 pub struct AppState {
+    /// Postgres
     pub pool: PgPool,
+    /// Redis
+    pub redis: Arc<Mutex<ConnectionManager>>,
+    /// Reqwest
     pub client: Client
 }
 
@@ -39,16 +45,27 @@ fn cors() -> CorsLayer {
 
 impl AppState {
     async fn init() -> Self {
-        let db_url = std::env::var("DATABASE_URL")
+        let postgres_url = std::env::var("DATABASE_URL")
             .expect("Can not read DATABASE_URL env variable");
 
-        let pool = PgPool::connect(&db_url).await
+        let redis_url = std::env::var("REDIS_URL")
+            .expect("Can not read REDIS_URL env variable");
+
+        let pool = PgPool::connect(&postgres_url).await
             .expect("Can not connect to the database");
+
+        let client = redis::Client::open(redis_url)
+            .expect("Can not create redis client");
+
+        let redis = ConnectionManager::new(client).await
+            .expect("Can not create redis connection");
+
+        let redis = Arc::new(Mutex::new(redis));
 
         let client = Client::new();
 
         Self {
-            pool, client
+            pool, redis, client
         }
     }
 }
