@@ -38,7 +38,11 @@ pub async fn get_chat_users(
     let users = sqlx::query_as!(
         User,
         r#"
-        SELECT u.user_id, u.username, u.display_name, u.status
+        SELECT
+            u.user_id,
+            u.username,
+            u.display_name,
+            u.status
         FROM "user" u
         JOIN chat_user cu on cu.user_id = u.user_id
         WHERE cu.chat_id = $1

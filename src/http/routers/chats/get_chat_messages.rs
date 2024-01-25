@@ -12,8 +12,12 @@ pub struct Message {
     pub message_id: Uuid,
     pub chat_id: Uuid,
     pub sender_id: Uuid,
-    pub context: String,
-    pub created_at: Timestampz
+    pub reply_message_id: Option<Uuid>,
+    pub forward_message_id: Option<Uuid>,
+    pub context: Option<String>,
+    pub edited: bool,
+    pub created_at: Timestampz,
+    pub updated_at: Timestampz
 }
 
 pub async fn get_chat_messages(
@@ -39,7 +43,16 @@ pub async fn get_chat_messages(
     let messages = sqlx::query_as!(
         Message,
         r#"
-        SELECT message_id, chat_id, sender_id, context, created_at
+        SELECT
+            message_id,
+            chat_id,
+            sender_id,
+            reply_message_id,
+            forward_message_id,
+            context,
+            edited,
+            created_at,
+            updated_at
         FROM message
         WHERE chat_id = $1
         "#,

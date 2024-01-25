@@ -9,6 +9,8 @@ use crate::http::{HttpResult, AppState, AuthUser, HttpError};
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateMessageBody {
+    pub reply_message_id: Option<Uuid>,
+    pub forward_message_id: Option<Uuid>,
     pub context: String
 }
 
@@ -36,12 +38,20 @@ pub async fn send_message(
     sqlx::query!(
         r#"
         INSERT INTO message (
-            chat_id, sender_id, context
+            chat_id,
+            sender_id,
+            reply_message_id,
+            forward_message_id,
+            context
         ) VALUES (
-            $1, $2, $3
+            $1, $2, $3, $4, $5
         )
         "#,
-        chat_id, user.user_id, body.context
+        chat_id,
+        user.user_id,
+        body.reply_message_id,
+        body.forward_message_id,
+        body.context
     )
     .execute(&state.pool)
     .await?;
