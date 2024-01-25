@@ -11,6 +11,8 @@ mod sessions;
 mod user;
 mod users;
 mod chats;
+/// remove later
+mod test;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -31,6 +33,7 @@ pub async fn router() -> Router {
         .nest("/user", user::router())
         .nest("/users", users::router())
         .nest("/chats", chats::router())
+        .nest("/test", test::router())
         .layer(cors())
         .layer(Extension(state))
 }
