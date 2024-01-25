@@ -45,6 +45,10 @@ pub enum HttpError {
     #[error("an error occurred with the database")]
     Sqlx(#[from] sqlx::Error),
 
+    /// Automatically return `500 Internal Server Error` on a `redis::RedisError`.
+    #[error("an error occurred with the database")]
+    Redis(#[from] redis::RedisError),
+
     /// Return `500 Internal Server Error` on a `anyhow::Error`.
     #[error("an internal server error occurred")]
     Anyhow(#[from] anyhow::Error),
@@ -76,7 +80,7 @@ impl HttpError {
             Self::Forbidden => StatusCode::FORBIDDEN,
             Self::NotFound => StatusCode::NOT_FOUND,
             Self::UnprocessableEntity { .. } => StatusCode::UNPROCESSABLE_ENTITY,
-            Self::Sqlx(_) | Self::Anyhow(_) => StatusCode::INTERNAL_SERVER_ERROR
+            Self::Sqlx(_) | Self::Redis(_) | Self::Anyhow(_) => StatusCode::INTERNAL_SERVER_ERROR
         }
     }
 }
@@ -107,6 +111,9 @@ impl IntoResponse for HttpError {
             Self::Sqlx(ref e) => {
                 log::error!("SQLx error: {:?}", e);
             },
+            Self::Redis(ref e) => {
+                log::error!("Redis error: {:?}", e);
+            }
             Self::Anyhow(ref e) => {
                 log::error!("Generic error: {:?}", e);
             },
