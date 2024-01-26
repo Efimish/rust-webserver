@@ -91,7 +91,7 @@ impl RsaKeyPair {
 }
 
 lazy_static! {
-    static ref KEY_PAIR: RsaKeyPair = RsaKeyPair::read_or_generate("data/keys").unwrap();
+    static ref KEY_PAIR: RsaKeyPair = RsaKeyPair::read_or_generate("keys").unwrap();
 }
 
 impl Claims {
