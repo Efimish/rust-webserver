@@ -1,8 +1,9 @@
 /target
 .DS_Store
 /.vscode
-/data
-/uploads/*
 .env
-!.env.example
+/keys/*
+/uploads/*
 /*.sql
+!*.example
+!README*

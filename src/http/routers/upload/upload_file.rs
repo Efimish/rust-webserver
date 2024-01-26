@@ -1,8 +1,10 @@
-use std::{ffi::OsStr, fs, io::Write, path::Path, sync::Arc};
+use std::{ffi::OsStr, path::Path, sync::Arc};
 
 use crate::http::{AppState, HttpResult};
 use anyhow::Context;
 use axum::{extract::Multipart, Extension};
+use time::OffsetDateTime;
+use tokio::io::AsyncWriteExt;
 use uuid::Uuid;
 
 pub async fn upload_file(
@@ -12,45 +14,66 @@ pub async fn upload_file(
     while let Some(field) = multipart.next_field().await
         .context("Can not get next field")?
     {
-        let name = field.name().context("File is missing name")?.to_string();
+        // let name = field.name().context("File is missing name")?.to_string();
         let original_file_name = field.file_name().context("File is missing file name")?.to_string();
         let content_type = field.content_type().context("File is missing content type")?.to_string();
         let data = field.bytes().await.context("File is missing bytes")?;
         let size = data.len() as i64;
 
         let upload_id = Uuid::new_v4();
-        let extension = Path::new(&original_file_name).extension().and_then(OsStr::to_str).context("File is missing extension")?;
-        let file_name = format!("{}.{}", upload_id, extension);
-        let file_path = std::env::current_dir().expect("Can not access current directory").join("uploads").join(&file_name);
-        // log::info!("File path: {:?}", file_path);
-        let mut file = fs::File::create(&file_path).context("Can not create file")?;
-        file.write_all(&data).context("Can not write data to file")?;
-        let file_path = file_path.to_str().context("Not a valid UTF-8 file path")?;
+        let extension = Path::new(&original_file_name).extension()
+            .and_then(OsStr::to_str)
+            .map(|s| format!(".{s}"))
+            .unwrap_or_default();
+        let file_name = format!("{}{}", upload_id, extension);
+        let folder = {
+            let date = OffsetDateTime::now_utc();
+            let year = date.year();
+            let fix_date = |n: u8| format!("{n:02}");
+            let month = fix_date(date.month().into());
+            let day = fix_date(date.day());
+            format!("{}-{}-{}", year, month, day)
+        };
+        let folder_path = std::env::current_dir().expect("Can not access current directory")
+            .join("uploads").join(&folder);
+        if !tokio::fs::try_exists(&folder_path).await.context("Can not access folder")? {
+            tokio::fs::create_dir(&folder_path).await.context("Can not create folder")?;
+        }
+        let file_path = folder_path.join(&file_name);
+        let mut file = tokio::fs::File::create(&file_path).await.context("Can not create file")?;
+        file.write_all(&data).await.context("Can not write data to file")?;
 
         sqlx::query!(
             r#"
             INSERT INTO upload (
                 upload_id,
                 file_name,
-                file_path,
+                extension,
                 content_type,
+                folder,
                 size
             ) VALUES (
-                $1, $2, $3, $4, $5
+                $1, $2, $3, $4, $5, $6
             )
             "#,
             upload_id,
             original_file_name,
-            file_path,
+            extension,
             content_type,
+            folder,
             size
         )
         .execute(&state.pool)
         .await?;
 
         log::info!(
-            "Length of `{name}` (`{file_name}`: `{content_type}`) is {} bytes",
-            data.len()
+            "
+            Uploading file id {upload_id}
+            With name {original_file_name}
+            in folder {folder}
+            extension {extension}
+            content type {content_type}
+            and size of {size} bytes"
         );
     }
     Ok(())

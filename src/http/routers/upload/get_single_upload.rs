@@ -4,7 +4,7 @@ use crate::http::{AppState, HttpResult, Timestampz};
 use anyhow::Context;
 use axum::{body::Body, extract::Path as ExPath, http::header, response::IntoResponse, Extension};
 use serde::Serialize;
-use tokio_util::io::ReaderStream;
+// use tokio_util::io::ReaderStream;
 use uuid::Uuid;
 
 #[derive(Serialize)]
@@ -12,8 +12,9 @@ use uuid::Uuid;
 struct Upload {
     upload_id: Uuid,
     file_name: String,
-    file_path: String,
+    extension: String,
     content_type: String,
+    folder: String,
     size: i64,
     created_at: Timestampz
 }
@@ -25,7 +26,8 @@ pub async fn get_single_upload(
     let upload = sqlx::query_as!(
         Upload,
         r#"
-        SELECT * FROM upload
+        SELECT *
+        FROM upload
         WHERE upload_id = $1
         "#,
         upload_id
@@ -33,7 +35,12 @@ pub async fn get_single_upload(
     .fetch_one(&state.pool)
     .await?;
 
-    let file = tokio::fs::File::open(&upload.file_path).await.context("Can not open file")?;
+    // let file = tokio::fs::File::open(&upload.file_path).await.context("Can not open file")?;
+    let file_path = std::env::current_dir().expect("Can not access current directory")
+        .join("uploads").join(&upload.folder).join(upload.upload_id.to_string() + &upload.extension);
+    log::info!("Reading file at: {file_path:?}");
+    let bytes = tokio::fs::read(&file_path).await.context("Can not read file")?;
+    let body = Body::from(bytes);
     let headers = [
         // (header::CONTENT_TYPE, "text/toml; charset=utf-8"),
         (
@@ -42,10 +49,10 @@ pub async fn get_single_upload(
         ),
         (
             header::CONTENT_DISPOSITION,
-            format!("attachment; filename={}", &upload.file_name),
+            format!("inline; filename={}", &upload.file_name),
         ),
     ];
-    let stream = ReaderStream::new(file);
-    let body = Body::from_stream(stream);
+    // let stream = ReaderStream::new(file);
+    // let body = Body::from_stream(stream);
     Ok((headers, body))
 }
