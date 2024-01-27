@@ -36,7 +36,7 @@ pub async fn edit_my_user(
             display_name = coalesce($4, "user".display_name),
             status = coalesce($5, "user".status)
         WHERE user_id = $6
-        RETURNING user_id, username, email, display_name, status
+        RETURNING user_id, username, email, display_name, avatar, status
         "#,
         body.username,
         body.email,

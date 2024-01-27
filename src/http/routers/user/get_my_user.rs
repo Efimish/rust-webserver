@@ -13,6 +13,7 @@ pub struct User {
     pub username: String,
     pub email: String,
     pub display_name: String,
+    pub avatar: Option<Uuid>,
     pub status: Option<String>
 }
 
@@ -23,7 +24,13 @@ pub async fn get_my_user(
     let user = sqlx::query_as!(
         User,
         r#"
-        SELECT user_id, username, email, display_name, status
+        SELECT
+            user_id,
+            username,
+            email,
+            display_name,
+            avatar,
+            status
         FROM "user"
         WHERE user_id = $1
         "#,

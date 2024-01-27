@@ -5,6 +5,7 @@ create table "user"
     email text not null,
     password_hash text not null,
     display_name text not null,
+    avatar uuid references upload (upload_id) on delete set null,
     status text,
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now(),

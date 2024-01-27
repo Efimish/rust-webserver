@@ -13,7 +13,7 @@ pub async fn get_user_by_username(
     let user = sqlx::query_as!(
         User,
         r#"
-        SELECT u.user_id, u.username, u.display_name, u.status,
+        SELECT u.user_id, u.username, u.display_name, u.avatar, u.status,
         (
             select max(last_active)
             from user_session us

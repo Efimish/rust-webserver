@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::http::{AppState, HttpResult, Timestampz};
+use crate::http::{AppState, HttpError, HttpResult, Timestampz};
 use anyhow::Context;
 use axum::{body::Body, extract::Path as ExPath, http::header, response::IntoResponse, Extension};
 use serde::Serialize;
@@ -23,6 +23,18 @@ pub async fn get_single_upload(
     Extension(state): Extension<Arc<AppState>>,
     ExPath(upload_id): ExPath<Uuid>
 ) -> HttpResult<impl IntoResponse> {
+    if sqlx::query!(
+        r#"
+        SELECT COUNT(1) FROM upload
+        WHERE upload_id = $1
+        "#,
+        upload_id
+    )
+    .fetch_one(&state.pool)
+    .await?.count != Some(1) {
+        return Err(HttpError::BadRequest);
+    }
+    
     let upload = sqlx::query_as!(
         Upload,
         r#"

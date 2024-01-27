@@ -1,3 +1,14 @@
+insert into upload (
+    upload_id, file_name, extension, content_type, folder, size
+) values (
+    'fd25328f-1891-49ad-ad65-e303c76d14a2',
+    'avatar.webp',
+    '.webp',
+    'image/webp',
+    'default',
+    1012
+);
+
 insert into "user" (
     username, email, password_hash, display_name, status, created_at, updated_at
 ) values (
@@ -15,6 +26,21 @@ insert into "user" (
 ), (
     'user5', 'user5@efima.fun', '$argon2id$v=19$m=32768,t=2,p=1$lkD+5q2VLrWb67VUEGuRkg$sKJXIGrMZWI/+cfih2El2NyAWPnJaC5ffDCZC1D7fS8',
     'Fifth user', 'Welcome to my profile!', '2023-12-10 20:00:00.000000+00', '2023-12-10 20:00:00.000000+00'
+);
+
+update "user"
+set avatar = 'fd25328f-1891-49ad-ad65-e303c76d14a2'
+where username = 'user1';
+
+insert into user_session (
+    user_id, session_id, user_ip, user_agent, user_country, user_city
+) values (
+    (select user_id from "user" where username = 'user1'),
+    '1a848ee3-b26b-4744-b58a-fd95fe25ed2a',
+    '1.1.1.1',
+    'Windows 10',
+    'Australia',
+    'South Brisbane'
 );
 
 insert into chat (

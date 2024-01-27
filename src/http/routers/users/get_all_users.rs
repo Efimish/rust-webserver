@@ -12,6 +12,7 @@ pub struct User {
     pub user_id: Uuid,
     pub username: String,
     pub display_name: String,
+    pub avatar: Option<Uuid>,
     pub status: Option<String>,
     pub online: TimestampzOption
 }
@@ -23,7 +24,7 @@ pub async fn get_all_users(
     let users = sqlx::query_as!(
         User,
         r#"
-        SELECT u.user_id, u.username, u.display_name, u.status,
+        SELECT u.user_id, u.username, u.display_name, u.avatar, u.status,
         (
             select max(last_active)
             from user_session us

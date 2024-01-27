@@ -4,6 +4,7 @@
 .env
 /keys/*
 /uploads/*
+!/uploads/default
 /*.sql
 !*.example
 !README*
