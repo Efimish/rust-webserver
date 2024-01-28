@@ -49,12 +49,13 @@ pub async fn get_single_upload(
 
     // let file = tokio::fs::File::open(&upload.file_path).await.context("Can not open file")?;
     let file_path = std::env::current_dir().expect("Can not access current directory")
-        .join("uploads").join(&upload.folder).join(upload.upload_id.to_string() + &upload.extension);
+        .join("uploads")
+        .join(&upload.folder)
+        .join(upload.upload_id.to_string() + &upload.extension);
     log::info!("Reading file at: {file_path:?}");
     let bytes = tokio::fs::read(&file_path).await.context("Can not read file")?;
     let body = Body::from(bytes);
     let headers = [
-        // (header::CONTENT_TYPE, "text/toml; charset=utf-8"),
         (
             header::CONTENT_TYPE,
             format!("{}; charset=utf-8", &upload.content_type)

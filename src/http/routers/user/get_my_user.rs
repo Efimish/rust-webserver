@@ -21,6 +21,7 @@ pub async fn get_my_user(
     Extension(state): Extension<Arc<AppState>>,
     user: AuthUser,
 ) -> HttpResult<Json<User>> {
+    log::info!("my id = {}", user.user_id);
     let user = sqlx::query_as!(
         User,
         r#"

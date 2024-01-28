@@ -1,17 +1,10 @@
 use std::sync::Arc;
 
 use axum::{Extension, Json, extract::Path};
-use serde::Serialize;
 use uuid::Uuid;
+use super::super::get_all_chats::{Chat, ChatType};
 
 use crate::http::{HttpResult, AppState, AuthUser};
-
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Chat {
-    pub chat_id: Uuid,
-    pub chat_name: String
-}
 
 pub async fn get_chat(
     Extension(state): Extension<Arc<AppState>>,
@@ -21,7 +14,13 @@ pub async fn get_chat(
     let chat = sqlx::query_as!(
         Chat,
         r#"
-        SELECT c.* FROM chat c
+        SELECT
+            c.chat_id,
+            c.chat_type "chat_type: ChatType",
+            c.chat_name,
+            c.chat_description,
+            c.chat_image
+        FROM chat c
         JOIN chat_user cu ON cu.chat_id = c.chat_id
         WHERE cu.user_id = $1
         AND c.chat_id = $2

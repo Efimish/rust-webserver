@@ -44,8 +44,20 @@ insert into user_session (
 );
 
 insert into chat (
-    chat_name
-) values ('Chat 1'), ('Chat 2'), ('Chat 3');
+    chat_type, chat_name, chat_description, chat_image
+) VALUES (
+    'group', 'Chat 1', 'Biggest chat on this platform', 'fd25328f-1891-49ad-ad65-e303c76d14a2'
+), (
+    'group', 'Chat 2', 'Second biggest chat on this platform', 'fd25328f-1891-49ad-ad65-e303c76d14a2'
+);
+
+insert into chat (
+    chat_type
+) VALUES (
+    'private'
+), (
+    'saved'
+);
 
 insert into chat_user (
     user_id, chat_id
