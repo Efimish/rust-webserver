@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO chat_user (\n            user_id, chat_id\n        ) VALUES (\n            $1, $2\n        )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c3acbc19bc526cb058f43956906f1046653f9fab4c76bb656d9523fdae46402f"
+}

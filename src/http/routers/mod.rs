@@ -56,8 +56,18 @@ impl AppState {
         let redis_url = std::env::var("REDIS_URL")
             .expect("Can not read REDIS_URL env variable");
 
+        log::info!("
+        POSTGRES STRING: {}
+        REDIS STRING: {}
+        ", postgres_url, redis_url);
+
         let pool = PgPool::connect(&postgres_url).await
             .expect("Can not connect to the database");
+
+        sqlx::migrate!()
+            .run(&pool)
+            .await
+            .expect("Can not run postgres migrations");
 
         let client = redis::Client::open(redis_url)
             .expect("Can not create redis client");
