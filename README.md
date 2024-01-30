@@ -1,4 +1,8 @@
 # Rust webserver
+![Build](https://img.shields.io/github/actions/workflow/status/Efimish/rust-webserver/build.yaml?logo=GitHub)
+[![Size](https://img.shields.io/github/languages/code-size/Efimish/rust-webserver)](https://github.com/Efimsih/rust-webserver)
+![License](https://img.shields.io/github/license/Efimish/rust-webserver)
+
 Simple web server written in `Rust` using `axum` framwork, `PostgreSQL` and `sqlx` for queries.\
 Frontend to test this: [`website`](../../../website)
 
