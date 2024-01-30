@@ -1,0 +1,8 @@
+/target
+.git
+.gitignore
+.vscode
+**/.DS_Store
+/*.sql
+/uploads/*
+!/uploads/default
