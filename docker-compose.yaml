@@ -2,6 +2,7 @@ version: '3.9'
 services:
   postgres:
     image: postgres:16
+    restart: unless-stopped
     environment:
       POSTGRES_DB: "webserver"
       POSTGRES_USER: "admin"
@@ -10,5 +11,24 @@ services:
       - 5432:5432
   redis:
     image: redis:7
+    restart: unless-stopped
     ports:
       - 6379:6379
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./data/certbot/conf/:/etc/letsencrypt/:rw
+      - ./data/certbot/www/:/var/www/certbot/:rw
+  nginx:
+    image: nginx:latest
+    restart: unless-stopped
+    volumes:
+      - ./data/nginx/:/etc/nginx/:rw
+      - ./data/certbot/conf/:/etc/letsencrypt/:ro
+      - ./data/certbot/www/:/var/www/certbot/:ro
+    environment:
+      - NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx
+      - DOMAIN=${DOMAIN}
+    ports:
+      - 80:80
+      - 443:443

@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'src/**'
+      - '.sqlx/**'
+      - '.github/workflows/*.yaml'
 
 env:
   SQLX_OFFLINE: true
