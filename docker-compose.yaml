@@ -1,8 +1,10 @@
 version: '3.9'
 services:
   postgres:
-    image: postgres:16
+    image: postgres:latest
     restart: unless-stopped
+    volumes:
+      - ./data/postgres/:/var/lib/postgresql/data/:rw
     environment:
       POSTGRES_DB: "webserver"
       POSTGRES_USER: "admin"
@@ -10,7 +12,7 @@ services:
     ports:
       - 5432:5432
   redis:
-    image: redis:7
+    image: redis:latest
     restart: unless-stopped
     ports:
       - 6379:6379
