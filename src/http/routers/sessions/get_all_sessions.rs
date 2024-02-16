@@ -4,13 +4,13 @@ use axum::{Extension, Json};
 use serde::Serialize;
 use uuid::Uuid;
 
-use crate::http::{HttpResult, AppState, AuthUser, Timestampz};
+use crate::http::{HttpResult, AppState, AuthUser, models::Timestampz};
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Session {
+    pub id: Uuid,
     pub user_id: Uuid,
-    pub session_id: Uuid,
     pub user_ip: String,
     pub user_agent: String,
     pub user_country: String,

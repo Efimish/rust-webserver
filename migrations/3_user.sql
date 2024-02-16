@@ -1,11 +1,11 @@
 create table "user"
 (
-    user_id uuid primary key default uuid_generate_v4(),
+    id uuid primary key default uuid_generate_v4(),
     username text not null,
     email text not null,
     password_hash text not null,
     display_name text not null,
-    avatar uuid references upload (upload_id) on delete set null,
+    avatar uuid references upload (id) on delete set null,
     status text,
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now(),

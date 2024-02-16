@@ -1,5 +1,5 @@
 insert into upload (
-    upload_id, file_name, extension, content_type, folder, size
+    id, file_name, extension, content_type, folder, size
 ) values (
     'fd25328f-1891-49ad-ad65-e303c76d14a2',
     'avatar.webp',
@@ -33,9 +33,9 @@ set avatar = 'fd25328f-1891-49ad-ad65-e303c76d14a2'
 where username = 'user1';
 
 insert into user_session (
-    user_id, session_id, user_ip, user_agent, user_country, user_city
+    user_id, id, user_ip, user_agent, user_country, user_city
 ) values (
-    (select user_id from "user" where username = 'user1'),
+    (select id from "user" where username = 'user1'),
     '1a848ee3-b26b-4744-b58a-fd95fe25ed2a',
     '1.1.1.1',
     'Windows 10',
@@ -44,7 +44,7 @@ insert into user_session (
 );
 
 insert into chat (
-    chat_type, chat_name, chat_description, chat_image
+    type, name, description, image
 ) VALUES (
     'group', 'Chat 1', 'Biggest chat on this platform', 'fd25328f-1891-49ad-ad65-e303c76d14a2'
 ), (
@@ -52,7 +52,7 @@ insert into chat (
 );
 
 insert into chat (
-    chat_type
+    type
 ) VALUES (
     'private'
 ), (
@@ -62,47 +62,47 @@ insert into chat (
 insert into chat_user (
     user_id, chat_id
 )
-select user_id, chat_id
-from "user", chat
-where "user".username = 'user1'
-and chat.chat_name = 'Chat 1'
+select u.id as "user_id", c.id as "chat_id"
+from "user" u, chat c
+where u.username = 'user1'
+and c.name = 'Chat 1'
     union
-select user_id, chat_id
-from "user", chat
-where "user".username = 'user2'
-and chat.chat_name = 'Chat 1'
+select u.id as "user_id", c.id as "chat_id"
+from "user" u, chat c
+where u.username = 'user2'
+and c.name = 'Chat 1'
     union
-select user_id, chat_id
-from "user", chat
-where "user".username = 'user3'
-and chat.chat_name = 'Chat 1'
+select u.id as "user_id", c.id as "chat_id"
+from "user" u, chat c
+where u.username = 'user3'
+and c.name = 'Chat 1'
     union
-select user_id, chat_id
-from "user", chat
-where "user".username = 'user4'
-and chat.chat_name = 'Chat 1'
+select u.id as "user_id", c.id as "chat_id"
+from "user" u, chat c
+where u.username = 'user4'
+and c.name = 'Chat 1'
     union
-select user_id, chat_id
-from "user", chat
-where "user".username = 'user5'
-and chat.chat_name = 'Chat 1'
+select u.id as "user_id", c.id as "chat_id"
+from "user" u, chat c
+where u.username = 'user5'
+and c.name = 'Chat 1'
     union
-select user_id, chat_id
-from "user", chat
-where "user".username = 'user1'
-and chat.chat_name = 'Chat 2'
+select u.id as "user_id", c.id as "chat_id"
+from "user" u, chat c
+where u.username = 'user1'
+and c.name = 'Chat 2'
     union
-select user_id, chat_id
-from "user", chat
-where "user".username = 'user2'
-and chat.chat_name = 'Chat 2'
+select u.id as "user_id", c.id as "chat_id"
+from "user" u, chat c
+where u.username = 'user2'
+and c.name = 'Chat 2'
     union
-select user_id, chat_id
-from "user", chat
-where "user".username = 'user3'
-and chat.chat_name = 'Chat 2'
+select u.id as "user_id", c.id as "chat_id"
+from "user" u, chat c
+where u.username = 'user3'
+and c.name = 'Chat 2'
     union
-select user_id, chat_id
-from "user", chat
-where "user".username = 'user1'
-and chat.chat_name = 'Chat 3';
+select u.id as "user_id", c.id as "chat_id"
+from "user" u, chat c
+where u.username = 'user1'
+and c.name = 'Chat 3';

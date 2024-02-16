@@ -9,7 +9,7 @@ use crate::http::{HttpResult, AppState, AuthUser};
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct User {
-    pub user_id: Uuid,
+    pub id: Uuid,
     pub username: String,
     pub email: String,
     pub display_name: String,
@@ -26,14 +26,14 @@ pub async fn get_my_user(
         User,
         r#"
         SELECT
-            user_id,
+            id,
             username,
             email,
             display_name,
             avatar,
             status
         FROM "user"
-        WHERE user_id = $1
+        WHERE id = $1
         "#,
         user.user_id
     )

@@ -4,9 +4,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use serde::Deserialize;
 use validator::Validate;
-use crate::http::password::hash_password;
-use crate::http::routers::AppState;
-use crate::http::{HttpResult, HttpError, DeviceInfo, TokenPair};
+use crate::http::{HttpResult, HttpError, DeviceInfo, TokenPair, AppState, helpers::password::hash_password};
 
 lazy_static! {
     static ref USERNAME_REGEX: Regex = Regex::new(r"^\w+$").unwrap();
@@ -75,7 +73,7 @@ pub async fn register(
             display_name
         ) VALUES (
             $1, $2, $3, $1
-        ) RETURNING user_id
+        ) RETURNING id
         "#,
         username,
         email,
@@ -83,7 +81,7 @@ pub async fn register(
     )
         .fetch_one(&state.pool)
         .await?
-        .user_id;
+        .id;
     
     let tokens = TokenPair::new(
         &state.pool,

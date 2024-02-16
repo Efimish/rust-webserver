@@ -8,7 +8,7 @@ use crate::http::{HttpResult, AppState, AuthUser};
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateChatBody {
-    pub chat_name: String
+    pub name: String
 }
 
 pub async fn create_chat(
@@ -19,16 +19,16 @@ pub async fn create_chat(
     let chat_id = sqlx::query!(
         r#"
         INSERT INTO chat (
-            chat_name
+            name
         ) VALUES (
             $1
-        ) RETURNING chat_id
+        ) RETURNING id
         "#,
-        body.chat_name
+        body.name
     )
     .fetch_one(&state.pool)
     .await?
-    .chat_id;
+    .id;
 
     sqlx::query!(
         r#"

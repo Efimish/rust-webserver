@@ -3,7 +3,7 @@ use std::sync::Arc;
 use axum::{Extension, Json};
 use serde::Deserialize;
 
-use crate::http::{HttpResult, HttpError, error::ResultExt, AppState, AuthUser, password::hash_password};
+use crate::http::{HttpResult, HttpError, error::ResultExt, AppState, AuthUser, helpers::password::hash_password};
 use super::get_my_user::User;
 
 #[derive(Deserialize)]
@@ -35,8 +35,8 @@ pub async fn edit_my_user(
             password_hash = coalesce($3, "user".password_hash),
             display_name = coalesce($4, "user".display_name),
             status = coalesce($5, "user".status)
-        WHERE user_id = $6
-        RETURNING user_id, username, email, display_name, avatar, status
+        WHERE id = $6
+        RETURNING id, username, email, display_name, avatar, status
         "#,
         body.username,
         body.email,

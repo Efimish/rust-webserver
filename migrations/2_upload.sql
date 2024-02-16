@@ -1,6 +1,6 @@
 create table upload
 (
-    upload_id uuid primary key default uuid_generate_v4(),
+    id uuid primary key default uuid_generate_v4(),
     file_name text not null,
     extension text not null,
     content_type text not null,

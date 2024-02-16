@@ -13,7 +13,7 @@ pub async fn delete_chat(
     sqlx::query!(
         r#"
         DELETE FROM chat
-        WHERE chat_id = $1
+        WHERE id = $1
         "#,
         chat_id
     )

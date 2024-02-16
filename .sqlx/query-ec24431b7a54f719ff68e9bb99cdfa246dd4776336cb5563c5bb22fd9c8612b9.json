@@ -5,12 +5,12 @@
     "columns": [
       {
         "ordinal": 0,
-        "name": "user_id",
+        "name": "id",
         "type_info": "Uuid"
       },
       {
         "ordinal": 1,
-        "name": "session_id",
+        "name": "user_id",
         "type_info": "Uuid"
       },
       {

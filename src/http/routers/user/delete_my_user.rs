@@ -11,7 +11,7 @@ pub async fn delete_my_user(
     sqlx::query!(
         r#"
         DELETE FROM "user"
-        WHERE user_id = $1
+        WHERE id = $1
         "#,
         user.user_id
     )

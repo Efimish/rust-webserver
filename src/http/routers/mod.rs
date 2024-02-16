@@ -11,6 +11,7 @@ mod sessions;
 mod user;
 mod users;
 mod chats;
+mod music;
 mod upload;
 /// remove later
 mod test;
@@ -29,6 +30,7 @@ pub async fn router() -> Router {
     let state = Arc::new(AppState::init().await);
     Router::new()
         .nest("/health", health::router())
+        .nest("/music", music::router())
         .nest("/auth", auth::router())
         .nest("/sessions", sessions::router())
         .nest("/user", user::router())

@@ -13,6 +13,8 @@ http {
         server_name $DOMAIN;
         server_tokens off;
 
+        client_max_body_size 100M;
+
         location /.well-known/acme-challenge/ {
             root /var/www/certbot;
         }
@@ -29,6 +31,8 @@ http {
 
         server_name $DOMAIN;
 
+        client_max_body_size 100M;
+        
         ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
         ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
 

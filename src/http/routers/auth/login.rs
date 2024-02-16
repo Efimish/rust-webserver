@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use axum::{Json, Extension};
 use serde::Deserialize;
-use crate::http::{AppState, HttpResult, HttpError, DeviceInfo, MaybeAuthUser, TokenPair, password::verify_password};
+use crate::http::{AppState, HttpResult, HttpError, DeviceInfo, MaybeAuthUser, TokenPair, helpers::password::verify_password};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -31,7 +31,7 @@ pub async fn login(
     }
     let found_user = sqlx::query!(
         r#"
-        SELECT user_id, password_hash
+        SELECT id, password_hash
         FROM "user"
         WHERE username = $1
         "#,
@@ -40,7 +40,7 @@ pub async fn login(
     .fetch_one(&state.pool)
     .await?;
 
-    let user_id = found_user.user_id;
+    let user_id = found_user.id;
     let password_hash = found_user.password_hash;
 
     verify_password(body.password.clone(), password_hash).await?;

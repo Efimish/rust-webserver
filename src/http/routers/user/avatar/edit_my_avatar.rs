@@ -23,7 +23,7 @@ pub async fn edit_my_avatar(
             r#"
             UPDATE "user"
             SET avatar = $1
-            WHERE user_id = $2
+            WHERE id = $2
             "#,
             upload_id,
             user.user_id

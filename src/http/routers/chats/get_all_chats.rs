@@ -17,11 +17,11 @@ pub enum ChatType {
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Chat {
-    pub chat_id: Uuid,
-    pub chat_type: ChatType,
-    pub chat_name: Option<String>,
-    pub chat_description: Option<String>,
-    pub chat_image: Option<Uuid>
+    pub id: Uuid,
+    pub r#type: ChatType,
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub image: Option<Uuid>
 }
 
 pub async fn get_all_chats(
@@ -32,14 +32,14 @@ pub async fn get_all_chats(
         Chat,
         r#"
         SELECT
-            c.chat_id,
-            c.chat_type "chat_type!: ChatType",
-            c.chat_name,
-            c.chat_description,
-            c.chat_image
+            c.id,
+            c.type "type!: ChatType",
+            c.name,
+            c.description,
+            c.image
         FROM chat c
         JOIN chat_user cu
-        ON cu.chat_id = c.chat_id
+        ON cu.chat_id = c.id
         WHERE cu.user_id = $1
         "#,
         user.user_id

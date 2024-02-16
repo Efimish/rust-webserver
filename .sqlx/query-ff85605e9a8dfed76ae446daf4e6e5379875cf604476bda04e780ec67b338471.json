@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            c.id,\n            c.type \"type: ChatType\",\n            c.name,\n            c.description,\n            c.image\n        FROM chat c\n        JOIN chat_user cu ON cu.chat_id = c.id\n        WHERE cu.user_id = $1\n        AND c.id = $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "type: ChatType",
+        "type_info": {
+          "Custom": {
+            "name": "chat_type",
+            "kind": {
+              "Enum": [
+                "saved",
+                "private",
+                "group"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "image",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "ff85605e9a8dfed76ae446daf4e6e5379875cf604476bda04e780ec67b338471"
+}

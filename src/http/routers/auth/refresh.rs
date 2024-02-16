@@ -1,9 +1,7 @@
 use std::sync::Arc;
 use axum::{Json, Extension};
 use serde::Deserialize;
-use crate::http::routers::AppState;
-use crate::http::HttpResult;
-use crate::http::{TokenPair, DeviceInfo};
+use crate::http::{HttpResult, AppState, TokenPair, DeviceInfo};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]

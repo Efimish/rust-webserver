@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT t.* FROM track t\n            JOIN album_track at\n            ON at.track_id = t.id\n            WHERE at.album_id = $1\n            ORDER BY at.track_number DESC\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "audio",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "duration_ms",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "f5713f623a73fc44c97298dd8e33720aaec910487aed3e90b75fc2b129a176bd"
+}

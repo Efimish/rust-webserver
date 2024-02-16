@@ -26,7 +26,7 @@ Before installing, make sure you have following tools installed:\
 1. Clone this repo
 2. Setup `.env` file (check `.env.example`)
 3. Run docker compose (`docker compose up -d`)
-4. Test and get your certificates (check `./data/scripts` folder)
+4. Test and get your certificates (check `./scripts` folder)
 5. Run migrations from `/migrations` folder (`sqlx migrate run`)
 6. Build and start the server (`cargo run`)
 

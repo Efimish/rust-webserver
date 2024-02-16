@@ -12,7 +12,7 @@ pub async fn delete_my_avatar(
         r#"
         SELECT avatar
         FROM "user"
-        WHERE user_id = $1
+        WHERE id = $1
         "#,
         user.user_id
     )
@@ -27,7 +27,7 @@ pub async fn delete_my_avatar(
     sqlx::query!(
         r#"
         DELETE FROM upload
-        WHERE upload_id = $1
+        WHERE id = $1
         "#,
         avatar
     )

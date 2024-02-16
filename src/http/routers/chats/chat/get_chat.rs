@@ -15,15 +15,15 @@ pub async fn get_chat(
         Chat,
         r#"
         SELECT
-            c.chat_id,
-            c.chat_type "chat_type: ChatType",
-            c.chat_name,
-            c.chat_description,
-            c.chat_image
+            c.id,
+            c.type "type: ChatType",
+            c.name,
+            c.description,
+            c.image
         FROM chat c
-        JOIN chat_user cu ON cu.chat_id = c.chat_id
+        JOIN chat_user cu ON cu.chat_id = c.id
         WHERE cu.user_id = $1
-        AND c.chat_id = $2
+        AND c.id = $2
         "#,
         user.user_id,
         chat_id

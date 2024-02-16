@@ -20,11 +20,11 @@ pub async fn end_session(
     sqlx::query!(
         r#"
         DELETE FROM user_session
-        WHERE user_id = $1
-        AND session_id = $2
+        WHERE id = $1
+        AND user_id = $2
         "#,
-        user.user_id,
-        body.session_id
+        body.session_id,
+        user.user_id
     )
     .execute(&state.pool)
     .await?;

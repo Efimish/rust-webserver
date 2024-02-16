@@ -9,7 +9,7 @@ use crate::http::{AppState, AuthUser, HttpResult, HttpError};
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct User {
-    pub user_id: Uuid,
+    pub id: Uuid,
     pub username: String,
     pub display_name: String,
     pub status: Option<String>
@@ -39,12 +39,12 @@ pub async fn get_chat_users(
         User,
         r#"
         SELECT
-            u.user_id,
+            u.id,
             u.username,
             u.display_name,
             u.status
         FROM "user" u
-        JOIN chat_user cu on cu.user_id = u.user_id
+        JOIN chat_user cu on cu.user_id = u.id
         WHERE cu.chat_id = $1
         "#,
         chat_id

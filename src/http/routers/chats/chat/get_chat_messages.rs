@@ -4,12 +4,12 @@ use axum::{Extension, Json, extract::Path};
 use serde::Serialize;
 use uuid::Uuid;
 
-use crate::http::{HttpResult, AppState, AuthUser, HttpError, Timestampz};
+use crate::http::{HttpResult, AppState, AuthUser, HttpError, models::Timestampz};
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Message {
-    pub message_id: Uuid,
+    pub id: Uuid,
     pub chat_id: Uuid,
     pub sender_id: Uuid,
     pub reply_message_id: Option<Uuid>,
@@ -44,7 +44,7 @@ pub async fn get_chat_messages(
         Message,
         r#"
         SELECT
-            message_id,
+            id,
             chat_id,
             sender_id,
             reply_message_id,

@@ -1,8 +1,6 @@
 use std::sync::Arc;
 use axum::Extension;
-use crate::http::routers::AppState;
-use crate::http::{HttpResult, AuthUser};
-use crate::http::TokenPair;
+use crate::http::{HttpResult, AppState, AuthUser, TokenPair};
 
 pub async fn logout(
     Extension(state): Extension<Arc<AppState>>,

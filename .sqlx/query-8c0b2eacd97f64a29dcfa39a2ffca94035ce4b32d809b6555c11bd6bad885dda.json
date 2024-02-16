@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO upload (\n            id,\n            file_name,\n            extension,\n            content_type,\n            folder,\n            size\n        ) VALUES (\n            $1, $2, $3, $4, $5, $6\n        )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8c0b2eacd97f64a29dcfa39a2ffca94035ce4b32d809b6555c11bd6bad885dda"
+}

@@ -157,8 +157,8 @@ impl TokenPair {
         sqlx::query!(
             r#"
             INSERT INTO user_session (
+                id,
                 user_id,
-                session_id,
                 user_ip,
                 user_agent,
                 user_country,
@@ -167,8 +167,8 @@ impl TokenPair {
                 $1, $2, $3, $4, $5, $6
             )
             "#,
-            user_id,
             jti,
+            user_id,
             info.ip,
             info.os,
             info.country,
@@ -193,11 +193,11 @@ impl TokenPair {
         sqlx::query!(
             r#"
             DELETE FROM user_session
-            WHERE user_id = $1
-            AND session_id = $2
+            WHERE id = $1
+            AND user_id = $2
             "#,
-            user_id,
-            session_id
+            session_id,
+            user_id
         )
             .execute(pool)
             .await?;
@@ -216,7 +216,7 @@ impl TokenPair {
             r#"
             SELECT COUNT(1)
             FROM user_session
-            WHERE session_id = $1
+            WHERE id = $1
             "#,
             claims.jti
         )
@@ -262,7 +262,7 @@ impl AuthUser {
             r#"
             SELECT COUNT(1)
             FROM user_session
-            WHERE session_id = $1
+            WHERE id = $1
             "#,
             claims.jti
         )
@@ -276,7 +276,7 @@ impl AuthUser {
             r#"
             UPDATE user_session
             SET last_active = $2
-            WHERE session_id = $1
+            WHERE id = $1
             "#,
             claims.jti, OffsetDateTime::now_utc()
         )

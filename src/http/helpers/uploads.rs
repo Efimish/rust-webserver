@@ -46,7 +46,7 @@ pub async fn upload_file(
     sqlx::query!(
         r#"
         INSERT INTO upload (
-            upload_id,
+            id,
             file_name,
             extension,
             content_type,

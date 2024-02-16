@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT a.* FROM album a\n            JOIN artist_album aa\n            ON aa.album_id = a.id\n            WHERE aa.artist_id = $1\n            ORDER BY a.release_date DESC\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "image",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "release_date",
+        "type_info": "Date"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "67ff9381d6ad60c17656d638ffdd778339d203436e859faa9beaa4e336d802fd"
+}

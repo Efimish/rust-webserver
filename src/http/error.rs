@@ -16,6 +16,10 @@ pub enum HttpError {
     #[error("bad request")]
     BadRequest,
 
+    /// Return `400`
+    #[error("bad request")]
+    Aaaa(#[from] axum::Error),
+
     /// Return `400 Bad Request` on validation error
     #[error("bad request")]
     Validator(#[from] validator::ValidationErrors),
@@ -75,7 +79,7 @@ impl HttpError {
 
     fn status_code(&self) -> StatusCode {
         match self {
-            Self::BadRequest | Self::Validator(_) => StatusCode::BAD_REQUEST,
+            Self::BadRequest | Self::Aaaa(_) | Self::Validator(_) => StatusCode::BAD_REQUEST,
             Self::Unauthorized => StatusCode::UNAUTHORIZED,
             Self::Forbidden => StatusCode::FORBIDDEN,
             Self::NotFound => StatusCode::NOT_FOUND,
