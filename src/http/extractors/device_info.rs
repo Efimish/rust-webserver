@@ -65,15 +65,24 @@ where
             .await
             .expect("BUG: AppState was not added as an extension");
         
-        let connect_info: ConnectInfo<SocketAddr> = ConnectInfo::from_request_parts(req, _s)
-            .await
-            .context("Error getting connect info from request")?;
+        // NO NGINX WAY
+        // let connect_info: ConnectInfo<SocketAddr> = ConnectInfo::from_request_parts(req, _s)
+        //     .await
+        //     .context("Error getting connect info from request")?;
 
-        let user_ip = connect_info.0.to_string();
-        let user_ip = user_ip
-            .split_once(":")
-            .context("Error getting request IP")?.0;
-        
+        // let user_ip = connect_info.0.to_string();
+        // let user_ip = user_ip
+        //     .split_once(":")
+        //     .context("Error getting request IP")?.0;
+
+        // NGINX WAY
+        let user_ip = req
+            .headers
+            .get("X-Forwarded-For")
+            .context("Error getting user ip")?
+            .to_str()
+            .context("Error getting user ip")?;
+        log::debug!("Request IP = {user_ip}");
         let user_agent = req
             .headers
             .get(USER_AGENT)

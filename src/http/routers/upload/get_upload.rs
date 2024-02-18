@@ -1,40 +1,14 @@
 use std::sync::Arc;
-
-use crate::http::{models::Timestampz, AppState, HttpContext, HttpError, HttpResult};
-use anyhow::Context;
-use axum::{body::Body, extract::Path as ExPath, http::header, response::IntoResponse, Extension};
-use serde::Serialize;
+use axum::{body::Body, extract::Path, http::header, response::IntoResponse, Extension};
 use uuid::Uuid;
-
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-struct Upload {
-    id: Uuid,
-    file_name: String,
-    extension: String,
-    content_type: String,
-    folder: String,
-    size: i64,
-    created_at: Timestampz
-}
+use anyhow::Context;
+use crate::http::{models::upload::Upload, AppState, HttpResult};
 
 pub async fn get_upload(
     Extension(state): Extension<Arc<AppState>>,
-    ExPath(upload_id): ExPath<Uuid>
+    Path(upload_id): Path<Uuid>
 ) -> HttpResult<impl IntoResponse> {    
-    let upload = sqlx::query_as!(
-        Upload,
-        r#"
-        SELECT *
-        FROM upload
-        WHERE id = $1
-        "#,
-        upload_id
-    )
-    .fetch_optional(&state.pool)
-    .await?
-    .http_context(HttpError::NotFound)?;
-
+    let upload = Upload::get(&state.pool, upload_id).await?;
     let file_path = std::env::current_dir().expect("Can not access current directory")
         .join("uploads")
         .join(&upload.folder)

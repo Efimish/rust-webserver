@@ -1,44 +1,12 @@
 use std::sync::Arc;
-
 use axum::{Extension, Json};
-use serde::Serialize;
-use uuid::Uuid;
-
-use crate::http::{HttpResult, AppState, AuthUser};
-
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct User {
-    pub id: Uuid,
-    pub username: String,
-    pub email: String,
-    pub display_name: String,
-    pub avatar: Option<Uuid>,
-    pub status: Option<String>
-}
+use crate::http::{models::user::MyUser, AppState, AuthUser, HttpResult};
 
 pub async fn get_my_user(
     Extension(state): Extension<Arc<AppState>>,
     user: AuthUser,
-) -> HttpResult<Json<User>> {
-    log::info!("my id = {}", user.user_id);
-    let user = sqlx::query_as!(
-        User,
-        r#"
-        SELECT
-            id,
-            username,
-            email,
-            display_name,
-            avatar,
-            status
-        FROM "user"
-        WHERE id = $1
-        "#,
-        user.user_id
-    )
-    .fetch_one(&state.pool)
-    .await?;
-
+) -> HttpResult<Json<MyUser>> {
+    log::debug!("my user id = {}", user.user_id);
+    let user = MyUser::get(&state.pool, user.user_id).await?;
     Ok(Json(user))
 }

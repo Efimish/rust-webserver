@@ -1,31 +1,12 @@
 use std::sync::Arc;
-
 use axum::{Extension, extract::Path, Json};
-use super::get_user::User;
-
-use crate::http::{HttpResult, AppState, AuthUser};
+use crate::http::{models::user::User, AppState, AuthUser, HttpResult};
 
 pub async fn get_user_by_username(
     Extension(state): Extension<Arc<AppState>>,
     _: AuthUser,
     Path(username): Path<String>
 ) -> HttpResult<Json<User>> {
-    let user = sqlx::query_as!(
-        User,
-        r#"
-        SELECT u.id, u.username, u.display_name, u.avatar, u.status,
-        (
-            select max(last_active)
-            from user_session us
-            where us.user_id = u.id
-        ) online
-        FROM "user" u
-        WHERE username = $1
-        "#,
-        username
-    )
-    .fetch_one(&state.pool)
-    .await?;
-
+    let user = User::get_by_username(&state.pool, username).await?;
     Ok(Json(user))
 }

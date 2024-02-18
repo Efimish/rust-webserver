@@ -3,7 +3,6 @@
 /.vscode
 .env
 /data/*/*
-!/data/scripts/*
 !/data/nginx/templates
 /uploads/*
 !/uploads/default

@@ -3,8 +3,10 @@ use std::sync::Arc;
 use axum::{Extension, Json};
 use serde::Deserialize;
 
-use crate::http::{HttpResult, HttpError, error::ResultExt, AppState, AuthUser, helpers::password::hash_password};
-use super::get_my_user::User;
+use crate::http::{
+    models::user::MyUser,
+    HttpResult, HttpError, error::ResultExt, AppState, AuthUser, helpers::password::hash_password
+};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -20,14 +22,14 @@ pub async fn edit_my_user(
     Extension(state): Extension<Arc<AppState>>,
     user: AuthUser,
     body: Json<EditUserBody>
-) -> HttpResult<Json<User>> {
+) -> HttpResult<Json<MyUser>> {
     let password_hash = if let Some(password) = body.password.clone() {
         Some(hash_password(password).await?)
     } else {
         None
     };
     let user = sqlx::query_as!(
-        User,
+        MyUser,
         r#"
         UPDATE "user"
         SET username = coalesce($1, "user".username),
