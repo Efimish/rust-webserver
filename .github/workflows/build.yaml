@@ -1,4 +1,4 @@
-name: Build code
+name: Build and test code
 
 on:
   push:
@@ -13,12 +13,24 @@ env:
   SQLX_OFFLINE: true
 
 jobs:
-  build:
+  build_and_test:
+    name: Build and test code
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
 
       - name: Install rust
         uses: actions-rs/toolchain@v1
@@ -26,7 +38,8 @@ jobs:
           profile: minimal
           toolchain: stable
 
-      - name: Build and test code
-        run: |
-          cargo build --verbose
-          cargo test --verbose
+      - name: Build code
+        run: cargo build --verbose
+      
+      - name: Test code
+        run: cargo test --verbose
