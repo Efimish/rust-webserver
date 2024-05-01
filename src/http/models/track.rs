@@ -15,6 +15,7 @@ pub struct TrackDTO {
     pub id: Uuid,
     pub name: String,
     pub audio: Option<Uuid>,
+    pub lyrics: Option<String>,
     pub duration_ms: i64
 }
 
@@ -24,6 +25,7 @@ pub struct Track {
     pub id: Uuid,
     pub name: String,
     pub audio: Option<Uuid>,
+    pub lyrics: Option<String>,
     pub duration_ms: i64,
     pub albums: Vec<AlbumDTO>,
     pub artists: Vec<ArtistDTO>
@@ -62,6 +64,7 @@ impl TrackDTO {
             id: self.id,
             name: self.name,
             audio: self.audio,
+            lyrics: self.lyrics,
             duration_ms: self.duration_ms,
             albums,
             artists
