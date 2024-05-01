@@ -77,7 +77,7 @@ pub async fn upload_avatar(
     data: &[u8],
 ) -> HttpResult<Uuid> {
     use image::GenericImageView;
-    use image::ImageOutputFormat;
+    use image::ImageFormat;
     use std::io::Cursor;
     if content_type != "image/jpeg"
     && content_type != "image/png"
@@ -90,7 +90,7 @@ pub async fn upload_avatar(
     let side = width.min(height).min(2048);
     image = image.resize_to_fill(side, side, image::imageops::Nearest);
     let mut bytes: Vec<u8> = Vec::new();
-    image.write_to(&mut Cursor::new(&mut bytes), ImageOutputFormat::WebP).context("Can not save image to buffer")?;
+    image.write_to(&mut Cursor::new(&mut bytes), ImageFormat::WebP).context("Can not save image to buffer")?;
     let file_name = format!("{}{}", file_name.rsplit_once('.').unwrap().0, ".webp");
     let avatar_id = upload_file(pool, file_name, "image/webp".to_string(), &bytes).await?;
     Ok(avatar_id)
