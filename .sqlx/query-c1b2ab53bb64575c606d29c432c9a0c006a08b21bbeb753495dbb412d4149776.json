@@ -11,18 +11,7 @@
       {
         "ordinal": 1,
         "name": "type!: ChatType",
-        "type_info": {
-          "Custom": {
-            "name": "chat_type",
-            "kind": {
-              "Enum": [
-                "saved",
-                "private",
-                "group"
-              ]
-            }
-          }
-        }
+        "type_info": "Text"
       },
       {
         "ordinal": 2,

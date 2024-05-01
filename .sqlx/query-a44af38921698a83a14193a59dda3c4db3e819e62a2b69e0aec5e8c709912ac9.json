@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT u.id, u.username, u.display_name, u.avatar, u.status,\n        (\n            select max(last_active)\n            from user_session us\n            where us.user_id = u.id\n        ) online\n        FROM \"user\" u\n        WHERE username = $1\n        ",
+  "query": "\n            SELECT\n                u.id,\n                u.username,\n                u.display_name,\n                u.avatar,\n                u.status,\n                (\n                    select max(last_active)\n                    from user_session us\n                    where us.user_id = u.id\n                ) online\n            FROM \"user\" u\n            WHERE u.id = $1\n            ",
   "describe": {
     "columns": [
       {
@@ -36,7 +36,7 @@
     ],
     "parameters": {
       "Left": [
-        "Text"
+        "Uuid"
       ]
     },
     "nullable": [
@@ -48,5 +48,5 @@
       null
     ]
   },
-  "hash": "7a144c321a2cfa8828639d6c78e42d380b76675e661341ce331f6cb553e585f9"
+  "hash": "a44af38921698a83a14193a59dda3c4db3e819e62a2b69e0aec5e8c709912ac9"
 }

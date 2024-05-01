@@ -20,6 +20,11 @@
       },
       {
         "ordinal": 3,
+        "name": "lyrics",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
         "name": "duration_ms",
         "type_info": "Int8"
       }
@@ -32,6 +37,7 @@
     "nullable": [
       false,
       false,
+      true,
       true,
       false
     ]
