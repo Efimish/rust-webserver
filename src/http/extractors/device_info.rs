@@ -2,7 +2,7 @@ use std::{net::SocketAddr, sync::Arc};
 use lazy_static::lazy_static;
 use reqwest::Client;
 use serde::{Serialize, Deserialize};
-use woothee::parser::Parser;
+use uaparser::{UserAgentParser, Parser};
 use anyhow::Context;
 use async_trait::async_trait;
 use axum::{
@@ -20,7 +20,7 @@ pub struct DeviceInfo {
 }
 
 lazy_static! {
-    static ref PARSER: Parser = Parser::new();
+    static ref PARSER: UserAgentParser = UserAgentParser::from_yaml("./regexes.yaml").unwrap();
 }
 
 impl DeviceInfo {
@@ -42,11 +42,10 @@ impl DeviceInfo {
         let location: Location = req.json()
             .await
             .context("Error requesting user location")?;
-        let agent = PARSER.parse(agent)
-            .context("Error parsing user agent")?;
+        let client = PARSER.parse(agent);
         Ok(Self {
             ip: ip.to_string(),
-            os: agent.os.to_string(),
+            os: client.user_agent.family.to_string(),
             country: location.country,
             city: location.city
         })

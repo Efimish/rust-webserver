@@ -40,7 +40,7 @@ rsa = { version = "0.9.6", features = ["std", "pem"] }
 jsonwebtoken = "9.3.0"
 
 # User agent parser
-woothee = "0.13.0"
+uaparser = "0.6.3"
 
 # Axum builds on the types in Tower
 tower = "0.4.13"
