@@ -1,9 +1,7 @@
-create type chat_type as enum ('saved', 'private', 'group');
-
 create table chat
 (
     id uuid primary key default uuid_generate_v4(),
-    type chat_type not null,
+    type text not null,
     name text,
     description text,
     image uuid references upload (id) on delete set null,
