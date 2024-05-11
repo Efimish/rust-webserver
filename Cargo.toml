@@ -24,17 +24,17 @@ redis = { version = "0.24.0", features = ["tokio-comp", "connection-manager"] }
 serde = { version = "1.0.201", features = ["derive"] }
 validator = { version = "0.16.1", features = ["derive"] }
 
-# requests (to use third party apis)
+# http requests
 reqwest = { version = "0.12.4", features = ["json"] }
 
-# hash passwords
+# passwords hashing
 argon2 = "0.5.3"
 
 # additional types: Time, UUID
 time = { version = "0.3.36", features = ["serde"] }
 uuid = { version = "1.8.0", features = ["v4", "serde"] }
 
-# Crypto keys, JWTs
+# RSA crypto keys, JsonWebTokens
 rsa = { version = "0.9.6", features = ["std", "pem"] }
 jsonwebtoken = "9.3.0"
 
