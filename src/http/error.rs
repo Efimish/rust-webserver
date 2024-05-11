@@ -17,7 +17,7 @@ pub type HttpResult<T> = Result<T, HttpError>;
 /// # Error used for anything HTTP related
 /// Main error type, it represents various errors that can occur during a request.\
 /// Serializes as a JSON. Response example:
-/// ```
+/// ```rust,ignore
 /// {
 ///     message: "Username is already taken",
 ///     error: "Bad Request",
