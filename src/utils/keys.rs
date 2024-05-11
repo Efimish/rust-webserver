@@ -17,11 +17,9 @@ use rsa::{
         LineEnding
     }
 };
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 
-lazy_static! {
-    pub(super) static ref KEY_PAIR: RsaKeyPair = RsaKeyPair::get("keys").unwrap();
-}
+pub(super) static KEY_PAIR: Lazy<RsaKeyPair> = Lazy::new(|| RsaKeyPair::get("keys").unwrap());
 
 #[derive(Clone)]
 pub struct RsaKeyPair {

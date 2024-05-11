@@ -17,7 +17,7 @@ use jsonwebtoken::{EncodingKey, DecodingKey, Validation, Algorithm, Header};
 use time::{Duration, OffsetDateTime};
 use uuid::Uuid;
 use serde::{Serialize, Deserialize};
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use super::keys::KEY_PAIR;
 use crate::http::HttpResult;
 
@@ -53,22 +53,20 @@ pub struct Claims {
 const ACCESS_LIFE_TIME: Duration = Duration::minutes(10);
 const REFRESH_LIFE_TIME: Duration = Duration::days(30);
 
-lazy_static! {
-    static ref ENCODING_KEY: EncodingKey = {
-        let key = KEY_PAIR.private.to_pkcs8_pem(LineEnding::default()).unwrap();
-        EncodingKey::from_rsa_pem(key.as_bytes()).unwrap()
-    };
-    static ref DECODING_KEY: DecodingKey = {
-        let key = KEY_PAIR.public.to_public_key_pem(LineEnding::default()).unwrap();
-        DecodingKey::from_rsa_pem(key.as_bytes()).unwrap()
-    };
-    static ref HEADER: Header = Header::new(Algorithm::RS256);
-    static ref VALIDATION: Validation = {
-        let mut validation = Validation::new(Algorithm::RS256);
-        validation.set_audience(&["api", "refresh"]);
-        validation
-    };
-}
+static ENCODING_KEY: Lazy<EncodingKey> = Lazy::new(|| {
+    let key = KEY_PAIR.private.to_pkcs8_pem(LineEnding::default()).unwrap();
+    EncodingKey::from_rsa_pem(key.as_bytes()).unwrap()
+});
+static DECODING_KEY: Lazy<DecodingKey> = Lazy::new(|| {
+    let key = KEY_PAIR.public.to_public_key_pem(LineEnding::default()).unwrap();
+    DecodingKey::from_rsa_pem(key.as_bytes()).unwrap()
+});
+static HEADER: Lazy<Header> = Lazy::new(|| Header::new(Algorithm::RS256));
+static VALIDATION: Lazy<Validation> = Lazy::new(|| {
+    let mut validation = Validation::new(Algorithm::RS256);
+    validation.set_audience(&["api", "refresh"]);
+    validation
+});
 
 impl Claims {
     /// Try to parse token string into valid claims

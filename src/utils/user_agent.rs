@@ -3,11 +3,11 @@
 //! It is done using regexes, don't forget to download them first.
 
 use uaparser::{UserAgentParser, Parser};
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 
-lazy_static! {
-    static ref PARSER: UserAgentParser = UserAgentParser::from_yaml("./regexes.yaml").unwrap();
-}
+static PARSER: Lazy<UserAgentParser> = Lazy::new(|| {
+    UserAgentParser::from_yaml("./regexes.yaml").unwrap()
+});
 
 /// Format: `$Browser on $OS`\
 /// Example: `Safari on Mac OS X`

@@ -1,13 +1,10 @@
 use serde::{Serialize, Deserialize};
 use validator::Validate;
 use regex::Regex;
-use lazy_static::lazy_static;
-
+use once_cell::sync::Lazy;
 use crate::{models::database_models::User, utils::tokens::TokenPair};
 
-lazy_static! {
-    static ref USERNAME_REGEX: Regex = Regex::new(r"^\w+$").unwrap();
-}
+static USERNAME_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^\w+$").unwrap());
 
 #[derive(Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]

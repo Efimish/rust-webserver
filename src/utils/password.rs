@@ -2,7 +2,6 @@
 //! Hasing passwords is a computationally intensive task,
 //! so it is done inside a blocking thread.
 
-use lazy_static::lazy_static;
 use anyhow::{anyhow, Context};
 use argon2::{
     Argon2,
@@ -17,10 +16,11 @@ use argon2::{
         rand_core::OsRng
     }
 };
+use once_cell::sync::Lazy;
 use crate::http::HttpResult;
 
-lazy_static! {
-    static ref ARGON2: Argon2<'static> = Argon2::new(
+static ARGON2: Lazy<Argon2> = Lazy::new(|| {
+    Argon2::new(
         Algorithm::Argon2id,
         Version::V0x13,
         Params::new(
@@ -29,8 +29,8 @@ lazy_static! {
             1,
             Some(32)
         ).unwrap()
-    );
-}
+    )
+});
 
 // Those are called green threads
 
