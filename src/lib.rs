@@ -1,12 +1,16 @@
+mod models;
+mod http;
+mod utils;
+mod logic;
+
 use std::net::SocketAddr;
 use tokio::net::TcpListener;
-mod http;
 
 pub async fn run() {
     let port: u16 = std::env::var("PORT")
-        .expect("Can not read PORT env variable")
+        .expect("PORT env variable is not set")
         .parse()
-        .expect("Can not parse PORT env variable");
+        .expect("failed to parse PORT env variable");
     
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     let listener = TcpListener::bind(&addr).await.unwrap();
@@ -14,8 +18,8 @@ pub async fn run() {
     log::info!("Starting server on http://{addr}");
     axum::serve(
         listener,
-        http::router()
+        http::routers::main()
             .await
             .into_make_service_with_connect_info::<SocketAddr>()
-    ).await.unwrap();
+    ).await.expect("failed to start the server");
 }

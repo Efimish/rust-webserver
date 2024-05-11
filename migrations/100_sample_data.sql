@@ -1,5 +1,5 @@
-insert into upload (
-    id, file_name, extension, content_type, folder, size
+insert into "upload" (
+    "id", "file_name", "extension", "content_type", "folder", "size"
 ) values (
     'fd25328f-1891-49ad-ad65-e303c76d14a2',
     'avatar.webp',
@@ -10,7 +10,7 @@ insert into upload (
 );
 
 insert into "user" (
-    username, email, password_hash, display_name, status, created_at, updated_at
+    "username", "email", "password_hash", "display_name", "status", "created_at", "updated_at"
 ) values (
     'user1', 'user1@efima.fun', '$argon2id$v=19$m=32768,t=2,p=1$QYdcuS8hJp7g/Eqzv6ChHw$Au1bzdDhRAcKsbs2V+0iov/84NvqGgO1v//U72DzoJs',
     'First user', 'Just chilling', '2023-12-10 12:00:00.000000+00', '2023-12-10 12:00:00.000000+00'
@@ -29,13 +29,13 @@ insert into "user" (
 );
 
 update "user"
-set avatar = 'fd25328f-1891-49ad-ad65-e303c76d14a2'
-where username = 'user1';
+set "avatar" = 'fd25328f-1891-49ad-ad65-e303c76d14a2'
+where "username" = 'user1';
 
-insert into user_session (
-    user_id, id, user_ip, user_agent, user_country, user_city
+insert into "user_session" (
+    "user_id", "id", "user_ip", "user_agent", "user_country", "user_city"
 ) values (
-    (select id from "user" where username = 'user1'),
+    (select "id" from "user" where "username" = 'user1'),
     '1a848ee3-b26b-4744-b58a-fd95fe25ed2a',
     '1.1.1.1',
     'Windows 10',
@@ -43,66 +43,66 @@ insert into user_session (
     'South Brisbane'
 );
 
-insert into chat (
-    type, name, description, image
+insert into "chat" (
+    "type", "name", "description", "image"
 ) VALUES (
     'group', 'Chat 1', 'Biggest chat on this platform', 'fd25328f-1891-49ad-ad65-e303c76d14a2'
 ), (
     'group', 'Chat 2', 'Second biggest chat on this platform', 'fd25328f-1891-49ad-ad65-e303c76d14a2'
 );
 
-insert into chat (
-    type
+insert into "chat" (
+    "type"
 ) VALUES (
     'private'
 ), (
     'saved'
 );
 
-insert into chat_user (
-    user_id, chat_id
+insert into "chat_user" (
+    "user_id", "chat_id"
 )
-select u.id as "user_id", c.id as "chat_id"
-from "user" u, chat c
-where u.username = 'user1'
-and c.name = 'Chat 1'
+select u."id" as "user_id", c."id" as "chat_id"
+from "user" u, "chat" c
+where u."username" = 'user1'
+and c."name" = 'Chat 1'
     union
-select u.id as "user_id", c.id as "chat_id"
-from "user" u, chat c
-where u.username = 'user2'
-and c.name = 'Chat 1'
+select u."id" as "user_id", c."id" as "chat_id"
+from "user" u, "chat" c
+where u."username" = 'user2'
+and c."name" = 'Chat 1'
     union
-select u.id as "user_id", c.id as "chat_id"
-from "user" u, chat c
-where u.username = 'user3'
-and c.name = 'Chat 1'
+select u."id" as "user_id", c."id" as "chat_id"
+from "user" u, "chat" c
+where u."username" = 'user3'
+and c."name" = 'Chat 1'
     union
-select u.id as "user_id", c.id as "chat_id"
-from "user" u, chat c
-where u.username = 'user4'
-and c.name = 'Chat 1'
+select u."id" as "user_id", c."id" as "chat_id"
+from "user" u, "chat" c
+where u."username" = 'user4'
+and c."name" = 'Chat 1'
     union
-select u.id as "user_id", c.id as "chat_id"
-from "user" u, chat c
-where u.username = 'user5'
-and c.name = 'Chat 1'
+select u."id" as "user_id", c."id" as "chat_id"
+from "user" u, "chat" c
+where u."username" = 'user5'
+and c."name" = 'Chat 1'
     union
-select u.id as "user_id", c.id as "chat_id"
-from "user" u, chat c
-where u.username = 'user1'
-and c.name = 'Chat 2'
+select u."id" as "user_id", c."id" as "chat_id"
+from "user" u, "chat" c
+where u."username" = 'user1'
+and c."name" = 'Chat 2'
     union
-select u.id as "user_id", c.id as "chat_id"
-from "user" u, chat c
-where u.username = 'user2'
-and c.name = 'Chat 2'
+select u."id" as "user_id", c."id" as "chat_id"
+from "user" u, "chat" c
+where u."username" = 'user2'
+and c."name" = 'Chat 2'
     union
-select u.id as "user_id", c.id as "chat_id"
-from "user" u, chat c
-where u.username = 'user3'
-and c.name = 'Chat 2'
+select u."id" as "user_id", c."id" as "chat_id"
+from "user" u, "chat" c
+where u."username" = 'user3'
+and c."name" = 'Chat 2'
     union
-select u.id as "user_id", c.id as "chat_id"
-from "user" u, chat c
-where u.username = 'user1'
-and c.name = 'Chat 3';
+select u."id" as "user_id", c."id" as "chat_id"
+from "user" u, "chat" c
+where u."username" = 'user1'
+and c."name" = 'Chat 3';

@@ -1,3 +1,5 @@
+//! Init necessary things and start the server
+
 use dotenvy::dotenv;
 
 #[tokio::main]

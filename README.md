@@ -4,35 +4,69 @@
 [![License](https://img.shields.io/github/license/Efimish/rust-webserver)](https://github.com/Efimish/rust-webserver/blob/main/LICENSE)
 [![dependency status](https://deps.rs/repo/github/Efimish/rust-webserver/status.svg)](https://deps.rs/repo/github/Efimish/rust-webserver)
 
-Simple web server written in `Rust` using `axum` framework and `sqlx` for queries.\
-I also have a simple website to test it:
+Simple REST api written in `Rust` using `axum` framework\
+~~I also have a simple website to test it:~~
+It was not updated in ages, not currently maintained
+and I'm really bad at front-end stuff
 [`website`](../../../website)
 
 ## Tech Stack
 ![Docker](https://img.shields.io/badge/-Docker-2496ED?logo=docker&logoColor=fff)
 ![PostgreSQL](https://img.shields.io/badge/-PostgreSQL-4169E1?logo=postgresql&logoColor=fff)
 ![Redis](https://img.shields.io/badge/-Redis-DC382D?logo=redis&logoColor=fff)
-![NGINX](https://img.shields.io/badge/-NGINX-009639?logo=nginx&logoColor=fff)
 ![Certbot](https://img.shields.io/badge/-Certbot-003A70?logo=letsencrypt&logoColor=fff)\
 ![JWT](https://img.shields.io/badge/-Json%20Web%20Tokens-000?logo=jsonwebtokens)
 
-### Information
-Everything, except the app itself is working in Docker.\
-The app may be containertized later.\
-Before installing, make sure you have following tools installed:\
-`git`, `cargo`, `docker`, `docker-compose`, `sqlx-cli`
+## Information
+This is basically a REST api\
+I wrote it for fun and learning purposes\
+It consists of five parts:
+- Api itself
+- Postgres database to store data
+- Redis database (not currently used for anything)
+- Nginx as reverse proxy to serve on ports 80 and 443 for http and https respectively, it also serves certificates
+- Certbot to generate and renew ssl certificates
 
-### Installation
+Databases and certbot are run using Docker, you can check [docker-compose](./docker-compose.yaml)\
+Nginx and api are run natively
+
+## Features
+- SSL certificates generation / renewal using `Certbot`
+- Communication with database using `sqlx`
+- `RSA` keys generation
+- `JsonWebTokens` signing / validation
+- Hashing passwords using `Argon2`
+- Request body validation
+- User agent string parser
+- Getting user's country and city based on ip address
+- Sending emails through SMTP
+- Serving static files
+
+## File structure
+I like to change it somethimes and move stuff around, but still:
+- `.sqlx` - sqlx queries metadata saved to build in offline mode on github and docker
+- `data` - docker containers data, secured there using volumes in docker-compose
+- `keys` - RSA keys, server loads them from there. In case they are not found, they will be generated there
+- `migrations` - raw SQL migrations that form the database structure from scratch. Used by `sqlx`
+- `scripts` - shell scripts that help to do some stuff easier. They are intended to be run from root directory, because they read `.env` file
+- `uploads` - contains static files that can be served
+- `src` - source code in Rust, it is documented using `rustdoc`, check it out
+
+## Pre-Installation
+Necessary components and tools:
+- `curl`
+- `git`
+- `nginx`
+- `docker` and `docker-compose`
+- `rust` and `cargo`
+- `sqlx-cli`
+
+## Installation
 1. Clone this repo
-2. Setup `.env` file (check `.env.example`)
-3. Run docker compose (`docker compose up -d`)
-4. Test and get your certificates (check `./scripts` folder)
-5. Run migrations from `/migrations` folder (`sqlx migrate run`)
-6. Build and start the server (`cargo run`)
-
-### To-do list
-- [ ] Containerize server
-- [x] Containerize everything else
-- [x] Make Authentication work properly
-- [x] Make an error enum
-- [ ] Make a website for testing
+2. Create `.env` file in the root folder and fill it (check `.env.example`)
+(you can use `copy-env` script or do it manually)
+3. Download `regexes.yaml` into root folder using `download-regexes` script (or manually)
+4. Run docker compose (`docker compose up -d`)
+5. Test and get your certificates (check `./scripts` folder)
+6. Run migrations from `/migrations` folder (`sqlx migrate run`)
+7. Build and start the server (`cargo run`)

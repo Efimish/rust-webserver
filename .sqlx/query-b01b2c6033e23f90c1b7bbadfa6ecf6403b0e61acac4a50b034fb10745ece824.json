@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO user_session (\n            \"id\",\n            \"user_id\",\n            \"user_ip\",\n            \"user_agent\",\n            \"user_country\",\n            \"user_city\"\n        ) VALUES ($1, $2, $3, $4, $5, $6)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b01b2c6033e23f90c1b7bbadfa6ecf6403b0e61acac4a50b034fb10745ece824"
+}

@@ -1,8 +1,19 @@
+# compiled code
 /target
+# git data
 .git
 .gitignore
-.vscode
+# OS
 **/.DS_Store
+# IDE
+.vscode
+# sql in root directory (created by SQLTools extension)
 /*.sql
+# only keep default uploads
 /uploads/*
 !/uploads/default
+# remove all examples and READMEs
+**/*.example
+**/README*
+# env secrets
+.env

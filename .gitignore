@@ -1,12 +1,24 @@
+# compiled code
 /target
+# OS
 .DS_Store
+# IDE
 /.vscode
+# env secrets
 .env
+# rsa secret keys
+*.key
+# docker containers' data
 /data/*/*
+# keep nginx templates
 !/data/nginx/templates
+# only keep default uploads
 /uploads/*
 !/uploads/default
+# sql in root directory (created by SQLTools extension)
 /*.sql
+# keep all examples and READMEs
 !*.example
 !README*
+# regexes for user agent parser, they should be downloaded through script
 regexes.yaml

@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE user_session\n        SET\n            \"id\" = $2,\n            \"user_agent\" = $3,\n            \"user_ip\" = $4,\n            \"user_country\" = $5,\n            \"user_city\" = $6,\n            \"last_active\" = NOW()\n        WHERE \"id\" = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2e8a0a8263b1655253780f8e513f48098d9e6303443b34d08f1defb43453961c"
+}
