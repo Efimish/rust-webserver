@@ -1,22 +1,21 @@
-Here we have some scripts\
-they can help you to do things easier\
-some of them read `.env` file, don't forger to set it up first\
+Here we have some scripts. They can help you to do things easier.\
+Some of them read `.env` file, don't forger to set it up first
 
-- run `copy-env` to copy the content of `.env.example` to `.env`
+- `copy-env` copies the content of `.env.example` to `.env`
 
-- run `download-regexes` to download or update `regexes.yaml`
-that is needed for user agent parser.
+- `download-regexes` downloads or updates `regexes.yaml`
+that is needed for user agent parser
 
-- run `nginx-start` to create nginx configuration file
-using template and run nginx with it
+- `nginx-start` creates nginx configuration file
+using template and runs nginx with it
 
-- run `nginx-stop` to stop nginx
+- `nginx-stop` stops nginx
 
-- run `certificates-test` and then `certificates-get`
-to test if you can and then get SSL certificates
-using `Certbot`. You will need nginx running first.
+- `certificates-test` and `certificates-get`
+tests if you can and gets SSL certificates
+using `Certbot`. They require running nginx
 
-- run `certificates-renew` when your certificates expire
+- `certificates-renew` refreshes your certificates
 (that happens every 3 months)
 
-read scripts to understand them better, they have comments inside
+Read scripts to understand them better, they have comments inside
