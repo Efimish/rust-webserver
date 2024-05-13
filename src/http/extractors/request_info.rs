@@ -50,21 +50,17 @@ where
     type Rejection = HttpError;
 
     async fn from_request_parts(req: &mut Parts, _s: &B) -> Result<Self, Self::Rejection> {
-        // NO NGINX WAY
         let connect_info: ConnectInfo<SocketAddr> = ConnectInfo::from_request_parts(req, _s)
             .await
-            .context("Error getting connect info from request")?;
+            .context("failed to get connect info from request")?;
 
-        let ip = connect_info.ip().to_string();
-
-        // NGINX WAY
-        // let user_ip = req
-        //     .headers
-        //     .get("X-Forwarded-For")
-        //     .context("Error getting user ip")?
-        //     .to_str()
-        //     .context("Error getting user ip")?;
-        // log::debug!("Request IP = {user_ip}");
+        let ip = req
+            .headers
+            .get("x-real-ip")
+            .map(|header| header.to_str().ok())
+            .flatten()
+            .map(|header| header.to_string())
+            .unwrap_or(connect_info.ip().to_string());
 
         let user_agent = req
             .headers

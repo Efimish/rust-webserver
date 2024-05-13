@@ -77,6 +77,7 @@ impl HttpError {
         Self::NotFound(path.into())
     }
     
+    #[allow(unused)]
     pub fn unprocessable_entity<K, V>(errors: impl IntoIterator<Item = (K, V)>) -> Self
     where
         K: Into<Cow<'static, str>>,

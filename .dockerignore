@@ -1,5 +1,7 @@
 # compiled code
 /target
+# other apps' data
+/data
 # git data
 .git
 .gitignore

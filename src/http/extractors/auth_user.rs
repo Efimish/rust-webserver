@@ -96,6 +96,7 @@ impl AuthUser {
 }
 
 impl MaybeAuthUser {
+    #![allow(unused)]
     pub fn user_id(&self) -> Option<Uuid> {
         self.0.as_ref().map(|user| user.user_id)
     }

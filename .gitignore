@@ -8,10 +8,10 @@
 .env
 # rsa secret keys
 *.key
-# docker containers' data
+# other apps' data
 /data/*/*
 # keep nginx templates
-!/data/nginx/templates
+!/data/nginx/*template*.conf
 # only keep default uploads
 /uploads/*
 !/uploads/default
