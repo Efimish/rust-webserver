@@ -5,9 +5,10 @@ on:
     branches:
       - main
     paths:
+      - 'Cargo.toml'
       - 'src/**'
       - '.sqlx/**'
-      - '.github/workflows/*.yaml'
+      - '.github/workflows/build.yaml'
 
 env:
   SQLX_OFFLINE: true

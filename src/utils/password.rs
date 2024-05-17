@@ -63,3 +63,16 @@ pub async fn verify_password(password: String, password_hash: String) -> HttpRes
     })
     .await.context("failed to verify password")?
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_password() {
+        let password = "123456".to_string();
+        let hash = hash_password(password.clone()).await.expect("failed to hash password");
+        verify_password(password, hash).await.expect("failed to verify password");
+    }
+}
