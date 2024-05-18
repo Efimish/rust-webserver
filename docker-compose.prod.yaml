@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: postgres:latest
+    restart: unless-stopped
+    volumes:
+      - ./data/postgres/:/var/lib/postgresql/data/:rw
+    environment:
+      POSTGRES_DB: "postgres"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - 5432:5432
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+      - 6379:6379
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./data/certbot/letsencrypt/:/etc/letsencrypt/:rw
+      - ./data/certbot/www/:/var/www/certbot/:rw
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres"
+      REDIS_URL: "redis://redis:6379"
+    env_file:
+      - .env
+    ports:
+      - ${PORT}:${PORT}
+    depends_on:
+      - postgres
+      - redis

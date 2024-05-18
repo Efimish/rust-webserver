@@ -53,7 +53,7 @@ async fn check_ip_api_health(
 
     let status = client.get("https://ip-api.com")
         .send().await
-        .is_ok_and(|r| r.status().is_success());
+        .is_ok_and(|r| !r.status().is_server_error());
 
     let ping = status.then_some(now.elapsed().as_millis());
 

@@ -21,7 +21,7 @@ sqlx = { version = "0.7.4", features = ["runtime-tokio", "postgres", "time", "uu
 redis = { version = "0.24.0", features = ["tokio-comp", "connection-manager"] }
 
 # [de]serialization and validation
-serde = { version = "1.0.201", features = ["derive"] }
+serde = { version = "1.0.202", features = ["derive"] }
 validator = { version = "0.16.1", features = ["derive"] }
 
 # http requests
@@ -48,8 +48,8 @@ tower-http = { version = "0.5.2", features = ["cors"] }
 # Utility Crates
 dotenvy = "0.15.7"
 rand = "0.8.5"
-thiserror = "1.0.60"
-anyhow = "1.0.83"
+thiserror = "1.0.61"
+anyhow = "1.0.85"
 async-trait = "0.1.80"
 regex = "1.10.4"
 log = "0.4.21"

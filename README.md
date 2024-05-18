@@ -11,6 +11,7 @@ and I'm really bad at front-end stuff
 [`website`](../../../website)
 
 ## Tech Stack
+![Rust](https://img.shields.io/badge/-Rust-000?logo=rust&logoColor=fff)\
 ![Docker](https://img.shields.io/badge/-Docker-2496ED?logo=docker&logoColor=fff)
 ![PostgreSQL](https://img.shields.io/badge/-PostgreSQL-4169E1?logo=postgresql&logoColor=fff)
 ![Redis](https://img.shields.io/badge/-Redis-DC382D?logo=redis&logoColor=fff)
@@ -25,11 +26,12 @@ It consists of five parts:
 - Api itself
 - Postgres database to store data
 - Redis database (not currently used for anything)
-- Nginx as reverse proxy to serve on ports 80 and 443 for http and https respectively, it also serves certificates
-- Certbot to generate and renew ssl certificates
+- Nginx as reverse proxy to serve on ports 80 and 443 for http and https respectively, serve certificates and static files
+- Certbot to get and renew ssl certificates
 
-Postgres, Redis and certbot are run using Docker, you can check [docker-compose](./docker-compose.yaml)\
-Nginx and api are run natively
+Postgres, Redis and Certbot are run using Docker, check one of `docker-compose` files\
+Nginx is run natively (because it needs to work on host network)\
+Api could be run both ways (docker/native)
 
 ## Features
 - SSL certificates generation / renewal using `Certbot`
@@ -50,7 +52,7 @@ I like to change it somethimes and move stuff around, but still:
 - `keys` - RSA keys, server loads them from there. In case they are not found, they will be generated there
 - `migrations` - raw SQL migrations that form the database structure from scratch. Used by `sqlx`
 - `scripts` - shell scripts that help to do some stuff easier.
-- `uploads` - contains static files that can be served
+- `static` - contains static files
 - `src` - source code, it is documented using `rustdoc`, check it out
 
 ## Pre-Installation
@@ -65,11 +67,10 @@ Necessary components and tools:
 
 ## Installation
 1. Clone this repo
-2. Create `.env` file in the root folder and fill it (check `.env.example`)
-(or you can use `copy-env` script)
-3. Download `regexes.yaml` into root folder using `download-regexes` script (or manually)
-4. Run docker compose (`docker compose up -d`)
-5. Start nginx (`scripts/nginx-start`)
-6. Test and get your certificates (check `/scripts` folder)
-7. Run migrations from `/migrations` folder (`sqlx migrate run`)
-8. Build and start the server (`cargo run`)
+2. Create `.env` file in the root folder and fill it (check `.env.example`) (or use `scripts/copy-env`)
+3. Download `regexes.yaml` into root folder using `scripts/download-regexes` (or manually)
+4. Run docker compose (`scripts/docker-run-[api|no-api]`)
+5. Run migrations from `/migrations` folder (`sqlx migrate run`)
+6. Start nginx (`scripts/nginx-start`)
+7. Test and get your certificates (`scripts/certificates-[test|get]`)
+8. If you decided to run api outside of docker, start it (`cargo run`)

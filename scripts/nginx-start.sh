@@ -3,6 +3,7 @@
 # colored output
 RED='\033[1;31m'
 GREEN='\033[1;32m'
+NC='\033[0m'
 
 # get the current directory
 CURRENT_DIRECTORY=$(pwd)
@@ -43,8 +44,13 @@ echo "$substituted" > $nginx_conf_file_path
 # graceful stop, allows ongoing requests to complete
 if pgrep nginx > /dev/null 2>&1; then
     sudo nginx -s quit
-    echo "${GREEN}nginx is already running, restarting..."
+    echo "${GREEN}nginx is already running, restarting...${NC}"
 fi
 # run nginx with our fresh config
 sudo nginx -c $nginx_conf_file_path
-echo "${GREEN}successfully started nginx"
+# was the config valid?
+if [ $? -eq 0 ]; then
+    echo "${GREEN}successfully started nginx"
+else
+    echo "${RED}failed to start nginx"
+fi
