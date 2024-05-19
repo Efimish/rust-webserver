@@ -1,1 +1,3 @@
+# Static
+
 In this directory we have static files that are served by nginx using `/static/` route

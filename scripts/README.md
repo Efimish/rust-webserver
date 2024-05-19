@@ -1,3 +1,5 @@
+# Scripts
+
 Here we have some scripts. They can help you to do things easier.\
 Some of them read `.env` file, don't forger to set it up first
 
