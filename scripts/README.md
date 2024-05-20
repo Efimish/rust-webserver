@@ -20,4 +20,11 @@ using `Certbot`. They require running nginx
 - `certificates-renew` refreshes your certificates
 (that happens every 3 months)
 
+- `docker-run-no-api` starts docker compose with PostgreSQL and Redis
+(API has to be run separately)
+
+- `docker-run-api` starts docker compose with PostgreSQL, Redis and API
+
+- `docker-stop` stops any of these two compose files
+
 Read scripts to understand them better, they have comments inside
