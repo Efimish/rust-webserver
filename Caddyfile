@@ -1,0 +1,17 @@
+efima.fun {
+    handle_path /static/* {
+        root static
+        file_server browse {
+            hide .DS_Store
+        }
+    }
+
+    handle {
+        reverse_proxy * http://127.0.0.1:{$PORT}
+    }
+
+    log {
+        output file data/caddy/caddy.log
+    }
+}
+# caddy start --envfile .env
